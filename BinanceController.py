@@ -1,4 +1,5 @@
 from binance.client import Client
+from datetime import datetime
 import ccxt
 
 
@@ -51,5 +52,30 @@ class BinanceControllorClass:
         print(order["symbol"])
         print(order["side"])
         print("量：" + order["origQty"])
+
+    # 取得配列の内訳
+    # [OpenTime,Open,High,Low,Close,Volume,CloseTime,QuoteAssetVolume,NumberOfTrades,TakerBuyBaseAssetVolume,TakerBuyQuoteAssetVolume,Ignore]
+    def coin_market_1min(self, coin):
+        klines = self.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_1MINUTE)
+        j = 0
+        openP = []
+        openT = []
+        for i in klines:
+            # 取得ごとの最大最小価格を取得
+            if len(klines) > j:
+                openP.append(klines[j][1])
+                openT.append(self.date_cul(klines[j][0]))
+            j = j + 1
+        return openP,openT
+
+    def date_cul(self,servertime):  # サーバータイムを日付に変換する
+        time = float(servertime) / 1000
+        dt = datetime.fromtimestamp(time)
+        return dt
+
+    def time_cul(self,date):  # 日付をサーバータイムに変換する
+        time = date.timestamp() * 1000
+        return time
+
 
 
