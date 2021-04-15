@@ -24,9 +24,9 @@ class NotificationCenterClass:
               '-spRd1ZKs2dzY6sK4a'
         self.discord_account_2 = DiscordBot.DiscordBotClass(url)
 
-    def notify_to_line(self, msg, attribute, account_no):
-        attribute = "[" + attribute + "]"
-        msg = attribute + "\n" + msg
+    def notify_to_line(self, msg, level, account_no):
+        level = "[" + level + "]"
+        msg = level + "\n" + msg
         if account_no == 1:
             self.line_account_1.send_msg(msg)
         if account_no == 2:
@@ -35,9 +35,9 @@ class NotificationCenterClass:
             self.line_account_1.send_msg(msg)
             self.line_account_2.send_msg(msg)
 
-    def notify_to_discord(self, msg, attribute, account_no):
-        attribute = "[" + attribute + "]"
-        msg = attribute + "\n" + msg
+    def notify_to_discord(self, msg, level, account_no):
+        level = "[" + level + "]"
+        msg = level + "\n" + msg
         if account_no == 1:
             self.discord_account_1.send_msg(msg)
         if account_no == 2:
