@@ -11,11 +11,11 @@ class H4rvestRe4perClass:
                               }
         self.binance_instance_1 = BinanceController.BinanceControllorClass(account['accout1']['api_key'],account['accout1']['api_secret'])
         self.binance_instance_2 = BinanceController.BinanceControllorClass(account['accout2']['api_key'],account['accout2']['api_secret'])
-    def account(self):
+    def coin_balance(self):
         print(self.binance_instance_1.get_balance())
         print(self.binance_instance_2.get_balance())
 
 
 if __name__ == "__main__":
     B = H4rvestRe4perClass()
-    B.account()
+    B.coin_balance()

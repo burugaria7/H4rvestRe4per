@@ -64,11 +64,11 @@ class BinanceControllorClass:
             # 取得ごとの最大最小価格を取得
             if len(klines) > j:
                 openP.append(klines[j][1])
-                openT.append(self.date_cul(klines[j][0]))
+                openT.append(self.deta_cul(klines[j][0]))
             j = j + 1
         return openP,openT
 
-    def date_cul(self,servertime):  # サーバータイムを日付に変換する
+    def deta_cul(self,servertime):  # サーバータイムを日付に変換する
         time = float(servertime) / 1000
         dt = datetime.fromtimestamp(time)
         return dt
