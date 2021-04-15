@@ -1,12 +1,13 @@
 import requests
 
-class LineBot:
+
+class LineBotClass:
 
     def __init__(self, url, access_token):
         self.url = url
         self.access_token = access_token
-        headers = {'Authorization': 'Bearer ' + access_token}
-        print("こちらLineBotのコンストラクタ、どうぞー？")
+        self.headers = {'Authorization': 'Bearer ' + access_token}
+        print("こちらLineBot: "+self.access_token+" どうぞー？")
 
     def send_msg(self, msg):
         payload = {'message': msg}
