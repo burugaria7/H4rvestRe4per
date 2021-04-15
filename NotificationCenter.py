@@ -2,6 +2,23 @@ import sys
 import logging
 import LineBot
 import DiscordBot
+import datetime
+
+
+class pycolor:
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    PURPLE = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    RETURN = '\033[07m'  # 反転
+    ACCENT = '\033[01m'  # 強調
+    FLASH = '\033[05m'  # 点滅
+    RED_FLASH = '\033[05;41m'  # 赤背景+点滅
+    END = '\033[0m'
 
 
 class NotificationCenterClass:
@@ -46,7 +63,38 @@ class NotificationCenterClass:
             self.discord_account_1.send_msg(msg)
             self.discord_account_2.send_msg(msg)
 
+    def debug(self, msg):
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + "\t[DEBUG]\t" + msg)
+
+    def info(self, msg, user):
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + pycolor.BLUE + "\t[INFO]\t" + pycolor.END + msg)
+        self.notify_to_discord(msg, "INFO", user)
+        self.notify_to_line(msg, "INFO", user)
+
+    def warning(self, msg):
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + pycolor.YELLOW + "\t[WARNING]\t" + pycolor.END + msg)
+
+    def error(self, msg, user):
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + pycolor.RED + "\t[ERROR]\t" + pycolor.END + msg)
+        self.notify_to_discord(msg, "ERROR", user)
+        self.notify_to_line(msg, "ERROR", user)
+
+    def critical(self, msg, user):
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
+        self.notify_to_discord(msg, "CRITICAL", user)
+        self.notify_to_line(msg, "CRITICAL", user)
+
 
 if __name__ == '__main__':
     notify = NotificationCenterClass()
-    notify.notify_to_discord("Hello", "ERROR", 3)
+    # notify.notify_to_discord("Hello", "ERROR", 3)
+    # notify.debug("Hello")
+    # notify.info("Hello", 3)
+    # notify.warning("Hello")
+    # notify.error("Hello")
+    # notify.critical("Hello")
