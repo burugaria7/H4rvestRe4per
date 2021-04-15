@@ -3,6 +3,7 @@ import logging
 import LineBot
 import DiscordBot
 import datetime
+import logging
 
 
 class pycolor:
@@ -24,8 +25,6 @@ class pycolor:
 class NotificationCenterClass:
     # コンストラクタの定義
     def __init__(self):
-        print("こちらNotificationCenterのコンストラクタ応答せよ！！")
-
         # LineBotインスタンスの初期化
         url = "https://notify-api.line.me/api/notify"
         access_token = 'athuyDTvtcVbV3HhlwiMA1Gg5jOUhmdJvGCAriRDYEK'
@@ -40,6 +39,14 @@ class NotificationCenterClass:
         url = 'https://discord.com/api/webhooks/831200616100659260/j0oR_VSrxokkFRaM2UNCZlwqhIbRYBr8ysU09HQksf80tjGaK7' \
               '-spRd1ZKs2dzY6sK4a'
         self.discord_account_2 = DiscordBot.DiscordBotClass(url)
+
+        # ベースのログ設定
+        logging.basicConfig(filename='test.log', level=logging.WARNING)
+        # 独自のログ設定
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        log_file = logging.FileHandler('test.log')
+        self.logger.addHandler(log_file)
 
     def notify_to_line(self, msg, level, account_no):
         level = "[" + level + "]"
@@ -62,9 +69,11 @@ class NotificationCenterClass:
         if account_no == 3:
             self.discord_account_1.send_msg(msg)
             self.discord_account_2.send_msg(msg)
+        self.debug("こちらNotificationCenterのコンストラクタ応答せよ！！")
 
     def debug(self, msg):
         dt_now = datetime.datetime.now()
+        self.logger.debug(str(dt_now) + "\t[DEBUG]\t" + msg)
         print(str(dt_now) + "\t[DEBUG]\t" + msg)
 
     def info(self, msg, user):
@@ -93,7 +102,7 @@ class NotificationCenterClass:
 if __name__ == '__main__':
     notify = NotificationCenterClass()
     # notify.notify_to_discord("Hello", "ERROR", 3)
-    # notify.debug("Hello")
+    notify.debug("Hello")
     # notify.info("Hello", 3)
     # notify.warning("Hello")
     # notify.error("Hello")

@@ -7,7 +7,6 @@ class LineBotClass:
         self.url = url
         self.access_token = access_token
         self.headers = {'Authorization': 'Bearer ' + access_token}
-        print("こちらLineBot: "+self.access_token+" どうぞー？")
 
     def send_msg(self, msg):
         payload = {'message': msg}
