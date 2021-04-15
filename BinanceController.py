@@ -10,6 +10,7 @@ class BinanceControllorClass:
         self.client = Client(api_key, api_secret)
         self.binance = ccxt.binance({'apiKey': str(api_key), 'secret': str(api_secret), })
 
+
     def get_price(self,coin):
         info = self.client.get_recent_trades(symbol=coin)
         coin = info[-1]['price']
@@ -55,18 +56,17 @@ class BinanceControllorClass:
 
     # 取得配列の内訳
     # [OpenTime,Open,High,Low,Close,Volume,CloseTime,QuoteAssetVolume,NumberOfTrades,TakerBuyBaseAssetVolume,TakerBuyQuoteAssetVolume,Ignore]
-    def coin_market_1min(self, coin):
-        klines = self.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_1MINUTE)
-        j = 0
-        openP = []
-        openT = []
-        for i in klines:
-            # 取得ごとの最大最小価格を取得
-            if len(klines) > j:
-                openP.append(klines[j][1])
-                openT.append(self.deta_cul(klines[j][0]))
-            j = j + 1
+    def coin_tec_1min(self, coin):
+        klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_1MINUTE)
+        openP = [i[1] for i in klines]
+        openT = [self.deta_cul(i[0]) for i in klines]
         return openP,openT
+
+
+    def coin_raw_1min(self, coin):
+        klines = self.client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "1 day ago UTC")
+        return klines
+
 
     def deta_cul(self,servertime):  # サーバータイムを日付に変換する
         time = float(servertime) / 1000

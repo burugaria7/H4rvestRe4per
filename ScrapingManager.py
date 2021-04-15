@@ -18,7 +18,7 @@ class ScrapingManagerClass:
         driver.get(TARGET_URL)
         time.sleep(2)
         tab = driver.find_element_by_xpath(
-            '//*[@id="technicals-root"]/div/div/div[1]/div/div/div[1]/div/div/div[' + str(set) + ']')
+            '//*[@id="technicals-root"]/div/div/div[1]/div/div/div[1]/div/div/div[' + str(period) + ']')
         tab.click()
         time.sleep(1)
 
