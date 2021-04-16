@@ -79,58 +79,47 @@ class NotificationCenterClass:
         self.logger.debug(str(dt_now) + "\t[DEBUG]\t" + msg)
         print(str(dt_now) + "\t[DEBUG]\t" + msg)
 
-    def info(self, msg, user):
-        msg = str(msg)
+    def info(self, *args):
+        user = 3
+        if len(args) > 1:
+            user = args[1]
+        msg = str(args[0])
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.BLUE + "\t[INFO]\t" + pycolor.END + msg)
         self.notify_to_discord(msg, "INFO", user)
         self.notify_to_line(msg, "INFO", user)
-
-    def info_all(self, msg):
-        msg = str(msg)
-        dt_now = datetime.datetime.now()
-        print(str(dt_now) + pycolor.BLUE + "\t[INFO]\t" + pycolor.END + msg)
-        self.notify_to_discord(msg, "INFO", 3)
-        self.notify_to_line(msg, "INFO", 3)
 
     def warning(self, msg):
         msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.YELLOW + "\t[WARNING]\t" + pycolor.END + msg)
 
-    def error(self, msg, user):
-        msg = str(msg)
+    def error(self, *args):
+        user = 3
+        if len(args) > 1:
+            user = args[1]
+        msg = str(args[0])
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.RED + "\t[ERROR]\t" + pycolor.END + msg)
         self.notify_to_discord(msg, "ERROR", user)
         self.notify_to_line(msg, "ERROR", user)
 
-    def error_all(self, msg):
-        msg = str(msg)
-        dt_now = datetime.datetime.now()
-        print(str(dt_now) + pycolor.RED + "\t[ERROR]\t" + pycolor.END + msg)
-        self.notify_to_discord(msg, "ERROR", 3)
-        self.notify_to_line(msg, "ERROR", 3)
-
-    def critical(self, msg, user):
-        msg = str(msg)
+    def critical(self, *args):
+        user = 3
+        if len(args) > 1:
+            user = args[1]
+        msg = str(args[0])
         dt_now = datetime.datetime.now()
         print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
         self.notify_to_discord(msg, "CRITICAL", user)
         self.notify_to_line(msg, "CRITICAL", user)
 
-    def critical_all(self, msg):
-        msg = str(msg)
-        dt_now = datetime.datetime.now()
-        print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
-        self.notify_to_discord(msg, "CRITICAL", 3)
-        self.notify_to_line(msg, "CRITICAL", 3)
 
 
 if __name__ == '__main__':
-    notify = NotificationCenterClass()
+    notify = NotificationCenterClass("test")
     # notify.notify_to_discord("Hello", "ERROR", 3)
-    notify.debug("Hello")
+    notify.info("Hello", 1)
     # notify.info("Hello", 3)
     # notify.warning("Hello")
     # notify.error("Hello")
