@@ -2,9 +2,13 @@ import BinanceController
 from binance.client import Client
 from datetime import  datetime
 
+import NotificationCenter
+
+
 class CalculationClass:
     def __init__(self,binance_instance):
         self.binance_instance: BinanceController = binance_instance
+        self.notfy = NotificationCenter.NotificationCenterClass("CalculationClass")
     def maxmin_auto(self, coin, Start, End, Price):
         klines = self.binance_instance.coin_raw_1min(coin)
         openT = [self.binance_instance.deta_cul(i[0]) for i in klines]

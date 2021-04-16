@@ -2,13 +2,16 @@ from binance.client import Client
 from datetime import datetime
 import ccxt
 
+import NotificationCenter
 
-class BinanceControllorClass:
+
+class BinanceControllerClass:
     def __init__(self,api_key,api_secret):
         self.api_key = api_key
         self.api_secret = api_secret
         self.client = Client(api_key, api_secret)
         self.binance = ccxt.binance({'apiKey': str(api_key), 'secret': str(api_secret), })
+        self.notfy = NotificationCenter.NotificationCenterClass("BinanceControllerClass")
 
 
     def get_price(self,coin):

@@ -24,7 +24,7 @@ class pycolor:
 
 class NotificationCenterClass:
     # コンストラクタの定義
-    def __init__(self):
+    def __init__(self, class_name):
         # LineBotインスタンスの初期化
         url = "https://notify-api.line.me/api/notify"
         access_token = 'athuyDTvtcVbV3HhlwiMA1Gg5jOUhmdJvGCAriRDYEK'
@@ -40,12 +40,14 @@ class NotificationCenterClass:
               '-spRd1ZKs2dzY6sK4a'
         self.discord_account_2 = DiscordBot.DiscordBotClass(url)
 
+
+        class_name = class_name + ".log"
         # ベースのログ設定
-        logging.basicConfig(filename='test.log', level=logging.WARNING)
+        logging.basicConfig(filename=class_name, level=logging.WARNING)
         # 独自のログ設定
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        log_file = logging.FileHandler('test.log')
+        log_file = logging.FileHandler(class_name)
         self.logger.addHandler(log_file)
 
     def notify_to_line(self, msg, level, account_no):
@@ -84,6 +86,13 @@ class NotificationCenterClass:
         self.notify_to_discord(msg, "INFO", user)
         self.notify_to_line(msg, "INFO", user)
 
+    def info(self, msg):
+        msg = str(msg)
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + pycolor.BLUE + "\t[INFO]\t" + pycolor.END + msg)
+        self.notify_to_discord(msg, "INFO", 3)
+        self.notify_to_line(msg, "INFO", 3)
+
     def warning(self, msg):
         msg = str(msg)
         dt_now = datetime.datetime.now()
@@ -96,12 +105,26 @@ class NotificationCenterClass:
         self.notify_to_discord(msg, "ERROR", user)
         self.notify_to_line(msg, "ERROR", user)
 
+    def error(self, msg):
+        msg = str(msg)
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + pycolor.RED + "\t[ERROR]\t" + pycolor.END + msg)
+        self.notify_to_discord(msg, "ERROR", 3)
+        self.notify_to_line(msg, "ERROR", 3)
+
     def critical(self, msg, user):
         msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
         self.notify_to_discord(msg, "CRITICAL", user)
         self.notify_to_line(msg, "CRITICAL", user)
+
+    def critical(self, msg):
+        msg = str(msg)
+        dt_now = datetime.datetime.now()
+        print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
+        self.notify_to_discord(msg, "CRITICAL", 3)
+        self.notify_to_line(msg, "CRITICAL", 3)
 
 
 if __name__ == '__main__':

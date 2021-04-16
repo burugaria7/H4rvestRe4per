@@ -23,7 +23,7 @@ class H4rvestRe4perClass:
         self.binance_instance_1 = BinanceController.BinanceControllorClass(account['accout1']['api_key'],account['accout1']['api_secret'])
         self.binance_instance_2 = BinanceController.BinanceControllorClass(account['accout2']['api_key'],account['accout2']['api_secret'])
 
-        self.notfy = NotificationCenter.NotificationCenterClass()
+        self.notfy = NotificationCenter.NotificationCenterClass("MainClass")
         self.scr = ScrapingManager.ScrapingManagerClass()
 
     def coin_balance(self):
@@ -58,9 +58,10 @@ class H4rvestRe4perClass:
 
 if __name__ == "__main__":
     hr = H4rvestRe4perClass()
-    schedule.every(1).minutes.do(hr.job)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    hr.notfy.debug("HELLLOO")
+    # schedule.every(1).minutes.do(hr.job)
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
 
 
