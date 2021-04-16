@@ -41,7 +41,7 @@ class NotificationCenterClass:
         self.discord_account_2 = DiscordBot.DiscordBotClass(url)
 
 
-        class_name = class_name + ".log"
+        class_name = "log/" + class_name + ".log"
         # ベースのログ設定
         logging.basicConfig(filename=class_name, level=logging.WARNING)
         # 独自のログ設定
@@ -119,7 +119,7 @@ class NotificationCenterClass:
 if __name__ == '__main__':
     notify = NotificationCenterClass("test")
     # notify.notify_to_discord("Hello", "ERROR", 3)
-    notify.info("Hello", 1)
+    notify.debug("Hello")
     # notify.info("Hello", 3)
     # notify.warning("Hello")
     # notify.error("Hello")
