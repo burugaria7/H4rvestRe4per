@@ -86,7 +86,7 @@ class NotificationCenterClass:
         self.notify_to_discord(msg, "INFO", user)
         self.notify_to_line(msg, "INFO", user)
 
-    def info(self, msg):
+    def info_all(self, msg):
         msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.BLUE + "\t[INFO]\t" + pycolor.END + msg)
@@ -105,7 +105,7 @@ class NotificationCenterClass:
         self.notify_to_discord(msg, "ERROR", user)
         self.notify_to_line(msg, "ERROR", user)
 
-    def error(self, msg):
+    def error_all(self, msg):
         msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.RED + "\t[ERROR]\t" + pycolor.END + msg)
@@ -119,7 +119,7 @@ class NotificationCenterClass:
         self.notify_to_discord(msg, "CRITICAL", user)
         self.notify_to_line(msg, "CRITICAL", user)
 
-    def critical(self, msg):
+    def critical_all(self, msg):
         msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
