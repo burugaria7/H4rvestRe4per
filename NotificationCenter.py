@@ -72,27 +72,32 @@ class NotificationCenterClass:
         self.debug("こちらNotificationCenterのコンストラクタ応答せよ！！")
 
     def debug(self, msg):
+        msg = str(msg)
         dt_now = datetime.datetime.now()
         self.logger.debug(str(dt_now) + "\t[DEBUG]\t" + msg)
         print(str(dt_now) + "\t[DEBUG]\t" + msg)
 
     def info(self, msg, user):
+        msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.BLUE + "\t[INFO]\t" + pycolor.END + msg)
         self.notify_to_discord(msg, "INFO", user)
         self.notify_to_line(msg, "INFO", user)
 
     def warning(self, msg):
+        msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.YELLOW + "\t[WARNING]\t" + pycolor.END + msg)
 
     def error(self, msg, user):
+        msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + pycolor.RED + "\t[ERROR]\t" + pycolor.END + msg)
         self.notify_to_discord(msg, "ERROR", user)
         self.notify_to_line(msg, "ERROR", user)
 
     def critical(self, msg, user):
+        msg = str(msg)
         dt_now = datetime.datetime.now()
         print(str(dt_now) + "\t" + pycolor.RED_FLASH + "[CRITICAL]" + pycolor.END + "\t" + msg)
         self.notify_to_discord(msg, "CRITICAL", user)
