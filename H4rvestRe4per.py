@@ -1,4 +1,5 @@
 import BinanceController
+import Calculation
 import NotificationCenter
 import ScrapingManager
 import schedule
@@ -20,9 +21,10 @@ class H4rvestRe4perClass:
         account['accout2'] = {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
                               'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
                               }
-        self.binance_instance_1 = BinanceController.BinanceControllorClass(account['accout1']['api_key'],account['accout1']['api_secret'])
-        self.binance_instance_2 = BinanceController.BinanceControllorClass(account['accout2']['api_key'],account['accout2']['api_secret'])
-
+        self.binance_instance_1 = BinanceController.BinanceControllorClass(account['accout1']['api_key'], account['accout1']['api_secret'], 1)
+        self.binance_instance_2 = BinanceController.BinanceControllorClass(account['accout2']['api_key'], account['accout2']['api_secret'], 2)
+        self.Calculation_instance_1 = Calculation.CalculationClass(1)
+        self.Calculation_instance_2 = Calculation.CalculationClass(2)
         self.notfy = NotificationCenter.NotificationCenterClass("MainClass")
         self.scr = ScrapingManager.ScrapingManagerClass()
 

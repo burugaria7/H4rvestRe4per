@@ -1,14 +1,16 @@
 from binance.client import Client
 from datetime import datetime
 import ccxt
-
+from bs4 import BeautifulSoup
+import urllib.request as req
 import NotificationCenter
 
 
 class BinanceControllerClass:
-    def __init__(self,api_key,api_secret):
+    def __init__(self,api_key,api_secret,user):
         self.api_key = api_key
         self.api_secret = api_secret
+        self.user = user
         self.client = Client(api_key, api_secret)
         self.binance = ccxt.binance({'apiKey': str(api_key), 'secret': str(api_secret), })
         self.notfy = NotificationCenter.NotificationCenterClass("BinanceControllerClass")
@@ -30,32 +32,50 @@ class BinanceControllerClass:
         return tmp
 
     def buy_all(self, coin):
-        dic = self.get_balance()
-        qat = int(dic['USDT'] / float(self.get_price(coin)))
-        order = self.client.order_market_buy(symbol=coin, quantity=qat)
-        print(order["symbol"])
-        print(order["side"])
-        print("量：" + order["origQty"])
+        while True:
+            try:
+                dic = self.get_balance()
+                qat = int(dic['USDT'] / float(self.get_price(coin)))
+                order = self.client.order_market_buy(symbol=coin, quantity=qat)
+                self.notfy.debug(order["symbol"])
+                self.notfy.debug(order["side"])
+                self.notfy.debug("量：" + order["origQty"])
+                return order["origQty"]
+            except Exception as e:
+                self.notfy.critical(e, self.user)
 
     def sell_all(self, coin):
-        dic = self.get_balance()
-        qat = int(dic[coin.replace('USDT', '')])
-        order = self.client.order_market_sell(symbol=coin, quantity=qat)
-        print(order["symbol"])
-        print(order["side"])
-        print("量：" + order["origQty"])
+        while True:
+            try:
+                dic = self.get_balance()
+                qat = int(dic[coin.replace('USDT', '')])
+                order = self.client.order_market_sell(symbol=coin, quantity=qat)
+                print(order["symbol"])
+                print(order["side"])
+                print("量：" + order["origQty"])
+                return order["origQty"]
+            except Exception as e:
+                self.notfy.critical(e, self.user)
 
     def buy_piece(self, coin, qat):
-        order = self.client.order_market_buy(symbol=coin, quantity=qat)
-        print(order["symbol"])
-        print(order["side"])
-        print("量：" + order["origQty"])
+        while True:
+            try:
+                order = self.client.order_market_buy(symbol=coin, quantity=qat)
+                print(order["symbol"])
+                print(order["side"])
+                print("量：" + order["origQty"])
+            except Exception as e:
+                self.notfy.critical(e, self.user)
 
     def sell_piece(self, coin, qat):
-        order = self.client.order_market_sell(symbol=coin, quantity=qat)
-        print(order["symbol"])
-        print(order["side"])
-        print("量：" + order["origQty"])
+        while True:
+            try:
+                order = self.client.order_market_sell(symbol=coin, quantity=qat)
+                print(order["symbol"])
+                print(order["side"])
+                print("量：" + order["origQty"])
+            except Exception as e:
+                self.notfy.critical(e, self.user)
 
     # 取得配列の内訳
     # [OpenTime,Open,High,Low,Close,Volume,CloseTime,QuoteAssetVolume,NumberOfTrades,TakerBuyBaseAssetVolume,TakerBuyQuoteAssetVolume,Ignore]
@@ -79,6 +99,14 @@ class BinanceControllerClass:
     def time_cul(self,date):  # 日付をサーバータイムに変換する
         time = date.timestamp() * 1000
         return time
+
+    def get_USDJPY(self):
+        url = "https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY=FX"
+        res = req.urlopen(url)
+        soup = BeautifulSoup(res, 'html.parser');
+        values = soup.select_one("#USDJPY_detail_bid").findAll(text=True)
+        current_value = float(''.join(values))
+        return current_value
 
 
 
