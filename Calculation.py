@@ -1,7 +1,6 @@
+import json
 import BinanceController
-from binance.client import Client
-from datetime import datetime
-
+from datetime import date, datetime, timedelta
 import NotificationCenter
 
 
@@ -9,7 +8,7 @@ class CalculationClass:
     def __init__(self, binance_instance, user):
         self.binance_instance: BinanceController = binance_instance
         self.user = user
-        self.notfy = NotificationCenter.NotificationCenterClass("CalculationClass")
+        self.notify = NotificationCenter.NotificationCenterClass("CalculationClass")
 
     def maxmin_auto(self, coin, Start, End, Price):
         klines = self.binance_instance.coin_raw_1min(coin)
@@ -31,7 +30,7 @@ class CalculationClass:
              Time[MIN1.index(minA)]])
         return info
 
-    #時価総額計算（$）
+    # 時価総額計算（$）
     def cul_profit(self, dic):
         mylist = list(dic.keys())
         sum = 0
@@ -48,17 +47,37 @@ class CalculationClass:
     def set_chart_url(self, coin):
         recoin = coin.replace('USDT', '')
         url = "https://www.binance.com/ja/trade/" + recoin + "_USDT"
-        self.notfy.debug("Binanceチャート"+url)
+        self.notify.debug("Binanceチャート" + url)
         return url
 
     def tax_cul(self, dic):
         BNBprice = dic['BNB'] * float(self.binance_instance.get_price("BNBUSDT"))
-        self.notfy.debug("BNB"+ str(BNBprice / self.cul_profit(dic) * 100) + "%全体保有")
+        self.notify.debug("BNB" + str(BNBprice / self.cul_profit(dic) * 100) + "%全体保有")
         if BNBprice < self.cul_profit(dic) * 0.01:
-            self.notfy.info("BNBが不足のため買い足します", self.user)
+            self.notify.info("BNBが不足のため買い足します", self.user)
             return True
         return False
 
+    def do_maxmin(self, dic):
+        time = dic['dt_now'].strftime("%Y/%m/%d %H:%M")
+        max_min = {
+            'coin': dic['usecoin'],
+            'price': dic['price'],
+            'start': datetime.strptime(time, '%Y/%m/%d %H:%M'),
+            'end': None
+        }
+        return max_min
+
+    # datetimeをstrに変換してjsonで使えるように
+    def json_dumps(self, json_obj):
+        def json_serial(obj):
+            # 日付型の場合には、文字列に変換します
+            if isinstance(obj, (datetime, date)):
+                return obj.isoformat()
+            # 上記以外はサポート対象外
+            raise TypeError("Type %s not serializable" % type(obj))
+
+        return json.dumps(json_obj, default=json_serial)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 import sys
-import logging
 import LineBot
 import DiscordBot
 import datetime
@@ -40,15 +39,16 @@ class NotificationCenterClass:
               '-spRd1ZKs2dzY6sK4a'
         self.discord_account_2 = DiscordBot.DiscordBotClass(url)
 
-
         class_name = "log/" + class_name + ".log"
         # ベースのログ設定
-        logging.basicConfig(filename=class_name, level=logging.WARNING)
+        # logging.basicConfig(filename=class_name, level=logging.WARNING)
         # 独自のログ設定
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         log_file = logging.FileHandler(class_name)
         self.logger.addHandler(log_file)
+
+
 
     def notify_to_line(self, msg, level, account_no):
         level = "[" + level + "]"

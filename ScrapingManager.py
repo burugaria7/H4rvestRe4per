@@ -8,7 +8,7 @@ import NotificationCenter
 class ScrapingManagerClass:
 
     def __init__(self):
-        self.notfy = NotificationCenter.NotificationCenterClass("ScrapingManagerClass")
+        self.notify = NotificationCenter.NotificationCenterClass("ScrapingManagerClass")
 
     def get_tradingview_trend(self, period, pair):
         trend = {
