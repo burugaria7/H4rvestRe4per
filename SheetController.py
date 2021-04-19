@@ -5,7 +5,6 @@ import time
 import pickle
 
 
-
 class SheetControllerClass:
 
     def __init__(self):
@@ -19,7 +18,8 @@ class SheetControllerClass:
         credentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, scope)
         gc = gspread.authorize(credentials)
         sp = gc.open_by_key(sheet_id)
-        log_sp = sp.worksheet('決済履歴')
+        log1_sp = sp.worksheet('決済履歴')
+        log2_sp = sp.worksheet('決済履歴2')
         pair_sp = sp.worksheet('自動通貨選択')
         test_sp = sp.worksheet('テスト用')
 
@@ -41,15 +41,28 @@ class SheetControllerClass:
             r = pickle.load(web)
             return r
 
-    def send_log_user1(self, data):
-        raw_data = []
 
+
+    def get_buy_date(self, user):
+        buy_date = []
         # buy_date_insert
-        cur_status = self.log_sp.row_values(4)
-        buy_date = str(cur_status[0])
-        buy_date_list = buy_date.split(' ')
-        raw_data.append(str(buy_date_list[0]))
-        raw_data.append(str(buy_date_list[1]))
+        if user == 1:
+            cur_status = self.log1_sp.row_values(4)
+        elif user == 2:
+            cur_status = self.log2_sp.row_values(4)
+
+        buy_date_time = str(cur_status[0])
+        buy_date_split = buy_date_time.split(' ')
+        buy_date.append(str(buy_date_split[0]))
+        buy_date.append(str(buy_date_split[1]))
+        return buy_date
+
+    def send_log(self, user, data):
+
+        if user != 1 and user != 2:
+            return
+
+        raw_data = self.get_buy_date(user)
 
         # sell_date_insert
         sell_date = str(data[0])
@@ -57,7 +70,7 @@ class SheetControllerClass:
         raw_data.append(str(sell_date_list[0]))
         raw_data.append(str(sell_date_list[1]))
 
-        max_and_min = self.checkmaxmin_listr()
+        # max_minの計算を修正する↓
         k = 0
         for i in data:
             if k > 0:
@@ -76,4 +89,4 @@ class SheetControllerClass:
             else:
                 raw_data.append(j)
 
-        self.log_sp.insert_row(raw_data, index=8, value_input_option='RAW')
+        self.log1_sp.insert_row(raw_data, index=8, value_input_option='RAW')
