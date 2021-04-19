@@ -15,15 +15,15 @@ def set_monitoring_currency_cache(data):
 # 今取引しているコインについての情報
 # メインAPI用
 # 取引してないときはNULL？
-def get_trade_cache1():
-    with open('save/trade_cache1.txt') as f:
+def get_position_cache1():
+    with open('save/position_cache1.txt') as f:
         data = f.read()
         f.close()
         return data
 
 
-def set_trade_cache1(data):
-    f = open('save/trade_cache1.txt', 'w')
+def set_position_cache1(data):
+    f = open('save/position_cache1.txt', 'w')
     f.write(data)
     return f.close()
 
@@ -31,15 +31,15 @@ def set_trade_cache1(data):
 # 今取引しているコインについての情報
 # サブAPI用
 # 取引してないときはNULL？
-def get_trade_cache2():
-    with open('save/trade_cache2.txt') as f:
+def get_position_cache2():
+    with open('save/position_cache2.txt') as f:
         data = f.read()
         f.close()
         return data
 
 
-def set_trade_cache2(data):
-    f = open('save/trade_cache2.txt', 'w')
+def set_position_cache2(data):
+    f = open('save/position_cache2.txt', 'w')
     f.write(data)
     return f.close()
 

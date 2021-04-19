@@ -23,26 +23,7 @@ class SheetControllerClass:
         pair_sp = sp.worksheet('自動通貨選択')
         test_sp = sp.worksheet('テスト用')
 
-    def checkmaxmin_dictw(self, dic):
-        with open('binary/checkmaxmin.binaryfile', 'wb') as web:
-            pickle.dump(dic, web)
-
-    def checkmaxmin_dictr(self):
-        with open('binary/checkmaxmin.binaryfile', 'rb') as web:
-            r = pickle.load(web)
-            return r
-
-    def checkmaxmin_listw(self, list):
-        with open('binary/checkmaxminlist.binaryfile', 'wb') as web:
-            pickle.dump(list, web)
-
-    def checkmaxmin_listr(self):
-        with open('binary/checkmaxminlist.binaryfile', 'rb') as web:
-            r = pickle.load(web)
-            return r
-
-
-
+    # この関数もキャッシュ全部ファイル化することで使わんくしたい
     def get_buy_date(self, user):
         buy_date = []
         # buy_date_insert
@@ -71,6 +52,7 @@ class SheetControllerClass:
         raw_data.append(str(sell_date_list[1]))
 
         # max_minの計算を修正する↓
+        # max min は外で計算してdataで渡すのが良さそう
         k = 0
         for i in data:
             if k > 0:
