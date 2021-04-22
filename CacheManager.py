@@ -1,13 +1,16 @@
+import pickle
+
+
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
-    with open('save/monitoring_currency_cache.txt') as f:
+    with open('save/monitoring_currency_cache.bin') as f:
         data = f.read()
         f.close()
         return data
 
 
 def set_monitoring_currency_cache(data):
-    f = open('save/monitoring_currency_cache.txt', 'w')
+    f = open('save/monitoring_currency_cache.bin', 'w')
     f.write(data)
     return f.close()
 
