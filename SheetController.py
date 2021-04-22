@@ -72,3 +72,9 @@ class SheetControllerClass:
                 raw_data.append(j)
 
         self.log1_sp.insert_row(raw_data, index=8, value_input_option='RAW')
+
+    def post_log(self, user, data):
+        if user == 1:
+            self.log1_sp.insert_row(data, index=8, value_input_option='RAW')
+        elif user == 2:
+            self.log2_sp.insert_row(data, index=8, value_input_option='RAW')

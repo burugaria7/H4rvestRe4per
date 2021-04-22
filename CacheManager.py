@@ -13,33 +13,23 @@ def set_monitoring_currency_cache(data):
 
 
 # 今取引しているコインについての情報
-# メインAPI用
 # 取引してないときはNULL？
-def get_position_cache1():
-    with open('save/position_cache1.txt') as f:
+# userは1or2
+def get_position_cache(user):
+    if user != 1 and user != 2:
+        return
+    str = 'save/position_cache' + str(user) + '.txt'
+    with open(str) as f:
         data = f.read()
         f.close()
         return data
 
 
-def set_position_cache1(data):
-    f = open('save/position_cache1.txt', 'w')
-    f.write(data)
-    return f.close()
-
-
-# 今取引しているコインについての情報
-# サブAPI用
-# 取引してないときはNULL？
-def get_position_cache2():
-    with open('save/position_cache2.txt') as f:
-        data = f.read()
-        f.close()
-        return data
-
-
-def set_position_cache2(data):
-    f = open('save/position_cache2.txt', 'w')
+def set_position_cache(user, data):
+    if user != 1 and user != 2:
+        return
+    str = 'save/position_cache' + str(user) + '.txt'
+    f = open(str, 'w')
     f.write(data)
     return f.close()
 
