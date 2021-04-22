@@ -5,6 +5,8 @@ import ScrapingManager
 import schedule
 import time
 import threading
+import SheetController
+import CacheManager as Cache
 
 
 class H4rvestRe4perClass:
@@ -14,72 +16,52 @@ class H4rvestRe4perClass:
     sell = 0.0
 
     def __init__(self):
-        account = {'account1': {'api_key': "PDzV1ux2fLL0p0Ivs8KGk3PcxAXO5GJKYpsq0e5bI2TAjEKcBJJLr99iAty1GuPB",
-                                'api_secret': "cYw3QPuWeah57wEn2ll1T7g5udOXVTmoBZP43mq4CEq2GTUWUW9yK9YTOnsrEEyi"
-                                },
-                   'account2': {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
-                                'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
-                                }}
-        self.binance_instance_1 = BinanceController.BinanceControllerClass(account['account1']['api_key'],
-                                                                           account['account1']['api_secret'], 1)
-        self.binance_instance_2 = BinanceController.BinanceControllerClass(account['account2']['api_key'],
-                                                                           account['account2']['api_secret'], 2)
+        self.account = {'1': {'api_key': "PDzV1ux2fLL0p0Ivs8KGk3PcxAXO5GJKYpsq0e5bI2TAjEKcBJJLr99iAty1GuPB",
+                              'api_secret': "cYw3QPuWeah57wEn2ll1T7g5udOXVTmoBZP43mq4CEq2GTUWUW9yK9YTOnsrEEyi"
+                              },
+                        '2': {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
+                              'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
+                              }}
+        self.binance_instance_1 = BinanceController.BinanceControllerClass(self.account['1']['api_key'],
+                                                                           self.account['1']['api_secret'], 1)
+        self.binance_instance_2 = BinanceController.BinanceControllerClass(self.account['2']['api_key'],
+                                                                           self.account['2']['api_secret'], 2)
         self.Calculation_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
         self.Calculation_instance_2 = Calculation.CalculationClass(self.binance_instance_2, 2)
         self.ScrapingManager_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
         self.ScrapingManager_instance_2 = Calculation.CalculationClass(self.binance_instance_2, 2)
         self.notify = NotificationCenter.NotificationCenterClass("MainClass")
         self.scr = ScrapingManager.ScrapingManagerClass()
+        self.sheet = SheetController.SheetControllerClass()
 
     def coin_balance(self):
         # a = self.binance_instance_1.get_balance()
         b = self.binance_instance_2.get_balance()
         self.notify.debug("1")
 
-    def buy_bot(self):
-        current_coin = str(gspread1.txt_read())
-        dict = {
-            'status': False,
-            'dt_now': None,
-            'price': 0,
-            'usecoin': current_coin,
-            'amount': 0,
-            'wasOverbuy': False,
-            'wasOversold': False,
-            'crossoverbuy': False,
-            'crossoversold': False,
-            'buycoin': 0,
-            'sellcoin': 0,
-            'mode': 0,
-        }
-        tec = {
-            'macdlineAfter': 0,
-            'macdlineBefore': 0,
-            'rsi14': 0,
-        }
-        buylist = []
-        selllist = []
-        dic = paypay.myself_info2()
-        newsp = gspread1.deta_read()
-        currentcoin1 = current_coin.replace('USDT', '')
-        if currentcoin1 in dic:
-            if (dic[currentcoin1] > 1):
-                if (dict['buycoin'] == 0 and newsp[1] == current_coin):
-                    dict['buycoin'] = newsp[2]
-                    dict['amount'] = newsp[4]
-                dict['status'] = True
-                print('次に売り注文より入ります')
-                sellonly.auto_ST()
+    def main_bot(self):
+        for i in self.account:
+            dict = {
+                'status': False,
+                'dt_now': None,
+                'price': 0,
+                'usecoin': currentcoin,
+                'amount': 0,
+                'wasOverbuy': False,
+                'wasOversold': False,
+                'crossoverbuy': False,
+                'crossoversold': False,
+                'buycoin': 0,
+                'sellcoin': 0,
+                'mode': 0,
+            }
+            dict = Cache.get_position_cache(i)
+            if len(dict) > 0:
+
             else:
-                usecoin, coinlist = gspread1.coin_read()
-                gspread1.txt_write(usecoin)
-                dict['usecoin'] = usecoin
-                print("次に買い注文より入ります")
-        else:
-            usecoin, coinlist = gspread1.coin_read()
-            gspread1.txt_write(usecoin)
-            dict['usecoin'] = usecoin
-            print("次に買い注文より入ります")
+
+
+
 
         while True:
             notuse, coinlist1 = gspread1.coin_read()
@@ -178,6 +160,9 @@ class H4rvestRe4perClass:
                     line.send_line_notify("\n" + sugoi_json_dumps(tec))
                 gspread1.dis_writelist(dict)
                 time.sleep(60 / len(coinlist))
+
+    def sell_bot(self):
+        print()
 
 
 if __name__ == "__main__":

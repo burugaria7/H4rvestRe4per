@@ -32,7 +32,7 @@ def set_position_cache(user, data):
         return
     path = 'save/position_cache' + str(user) + '.bin'
     with open(path, 'wb') as web:
-        pickle.dump(deta, web)
+        pickle.dump(data, web)
 
 
 class CacheManagerClass:
