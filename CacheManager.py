@@ -18,21 +18,20 @@ def set_monitoring_currency_cache(data):
 def get_position_cache(user):
     if user != 1 and user != 2:
         return
-    str = 'save/position_cache' + str(user) + '.txt'
-    with open(str) as f:
-        data = f.read()
-        f.close()
-        return data
+    path = 'save/position_cache' + str(user) + '.bin'
+    with open(path, 'rb') as web:
+        r = pickle.load(web)
+        return r
 
 
 def set_position_cache(user, data):
     if user != 1 and user != 2:
         return
-    str = 'save/position_cache' + str(user) + '.txt'
-    f = open(str, 'w')
-    f.write(data)
-    return f.close()
+    path = 'save/position_cache' + str(user) + '.bin'
+    with open(path, 'wb') as web:
+        pickle.dump(deta, web)
 
 
 class CacheManagerClass:
-    pass
+    def __init__(self):
+        pass
