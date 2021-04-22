@@ -1,7 +1,10 @@
 import json
+import os
+import time
 import BinanceController
 from datetime import date, datetime, timedelta
 import NotificationCenter
+import matplotlib.pyplot as plt
 
 
 class CalculationClass:
@@ -79,6 +82,71 @@ class CalculationClass:
 
         return json.dumps(json_obj, default=json_serial)
 
+    def plot_main(self, date, price, macd, macdsignal, macdhist, rsi14):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(311, title='Price')
+        ax2 = fig.add_subplot(312, title='MACD')
+        ax3 = fig.add_subplot(313, title='RSI')
+        ax1.set_xlim(date[-200], date[-1])
+        ax2.set_xlim(date[-200], date[-1])
+        ax3.set_xlim(date[-200], date[-1])
+        ax1.axes.xaxis.set_visible(False)
+        ax2.axes.xaxis.set_visible(False)
+        plt.ion()
+        ax1.plot(date, price, label="price")
+        ax2.plot(date, macd, label="macd")
+        ax2.plot(date, macdsignal, label="macdsignal")
+        ax2.plot(date, macdhist, label="macdhist")
+        ax3.plot(date, rsi14, label="rsi14")
+        save_dir = '/image/'
+        os.makedirs(save_dir, exist_ok=True)
+        plt.savefig(save_dir + 'plot.png')
+        plt.ioff()
+
+    def check_deadline(self):
+        while True:
+            r = gspread1.txt_readlist()
+            notuse, coinlist = gspread1.coin_read()
+            reslist = []
+            tmp = {}
+            paycoin = gspread1.usedpay_read()
+            print("------------------------------")
+            if r:
+                for j, k in r.items():
+                    dead = k + timedelta(hours=1)
+                    now = datetime.now()
+                    dicc = searchcoin.cul_tec(j)
+                    if j == paycoin:
+                        print("前回に決済に使われた通貨")
+                    elif dead < now or dicc["crossoversell"] and not dicc["crossoverbuy"]:
+                        if dicc["crossoversell"]:
+                            print("下降トレンド", j)
+                        if dead < now:
+                            print("期限切れ", j)
+
+                    else:
+                        tmp[j] = k
+
+            for i in coinlist:
+                dicc = searchcoin.cul_tec(i)
+                if i == paycoin:
+                    print("追加無し", i)
+                elif dicc["crossoversell"] and not dicc["crossoverbuy"]:
+                    print("下降トレンドのため追加無し:", i)
+                elif gspread1.time_read() + timedelta(hours=1) < datetime.now():
+                    print("監視中通貨なし")
+                else:
+                    if len(tmp) < 8:
+                        print(dicc)
+                        tmp[i] = gspread1.time_read()
+                        print("追加された通貨:", i)
+                time.sleep(3)
+            gspread1.txt_writelist(tmp)
+            for a in tmp.keys():
+                reslist.append(a)
+            if reslist:
+                return reslist
+            time.sleep(5)
 
 if __name__ == "__main__":
     print("")

@@ -48,25 +48,14 @@ class ScrapingManagerClass:
         # print("buy=", buy_val)
         return trend
 
-    def get_price(self, pair):
-        options = Options()
-        options.add_argument('--headless')
-        driver = webdriver.Chrome(chrome_options=options)
-        TARGET_URL = "https://jp.tradingview.com/symbols/" + pair + "/technicals/"
-        driver.get(TARGET_URL)
-        time.sleep(2)
-        price = driver.find_element_by_xpath(
-            '//*[@id="anchor-page-1"]/div/div[3]/div[1]/div/div/div/div[1]/div[1]')
-        return int(price.text)
-
     def cul_trend_from_tradingview(self, period, pair):
         trend = self.get_tradingview_trend(period, pair)
-        if trend['sell'] / sum(trend.values()) >= 0.7:
-            print("強い売り")
-            return False
-        elif trend['sell'] / sum(trend.values()) <= 0.3:
-            print("強い買い")
-        return True
+        if float(trend['buy']) / sum(trend.values()) >= 0.6:
+            print("買い")
+            return True
+        return False
+
+
 
     def cul_sell(self, period, pair):
         trend = self.get_tradingview_trend(period, pair)
