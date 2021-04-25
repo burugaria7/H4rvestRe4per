@@ -124,11 +124,6 @@ class H4rvestRe4perClass:
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
 
 
-
 if __name__ == "__main__":
     hr = H4rvestRe4perClass()
-    hr.coin_balance()
-    # schedule.every(1).minutes.do(hr.job)
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
+    hr.search_bot()
