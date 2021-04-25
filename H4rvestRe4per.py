@@ -89,8 +89,8 @@ class H4rvestRe4perClass:
                     dict['buy_time'] = datetime.now()
                     Cache.set_position_cache(1, dict)
                     self.available_api1 = False
-                    thread_sell = threading.Thread(target=self.sell_bot(1))
-                    thread_sell.start()
+                    del self.observe_que[pair]
+                    self.sell_bot(1)
                 elif self.available_api2:
                     dict['amount'] = self.binance_instance_2.buy_all(pair)
                     dict['buy_coin'] = self.binance_instance_2.get_price(pair)
@@ -99,8 +99,9 @@ class H4rvestRe4perClass:
                     dict['buy_time'] = datetime.now()
                     Cache.set_position_cache(2, dict)
                     self.available_api2 = False
-                    thread_sell = threading.Thread(target=self.sell_bot(2))
-                    thread_sell.start()
+                    del self.observe_que[pair]
+                    self.sell_bot(2)
+                return
 
     def sell_bot(self, user):
         while not self.available_api1 or not self.available_api2:
@@ -122,6 +123,7 @@ class H4rvestRe4perClass:
                     self.binance_instance_2.sell_all(dict['pair'])
                     self.available_api1 = True
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
+                return
 
 
 if __name__ == "__main__":
