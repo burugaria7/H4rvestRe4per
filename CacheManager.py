@@ -38,3 +38,21 @@ def set_position_cache(user, data):
 class CacheManagerClass:
     def __init__(self):
         pass
+
+if __name__ == "__main__":
+    dict = {
+        'status': False,
+        'dt_now': None,
+        'price': 0,
+        'usecoin': None,
+        'amount': 0,
+        'wasOverbuy': False,
+        'wasOversold': False,
+        'crossoverbuy': False,
+        'crossoversold': False,
+        'buycoin': 0,
+        'sellcoin': 0,
+        'mode': 0,
+    }
+    set_position_cache(2,dict)
+    print(get_position_cache(2))

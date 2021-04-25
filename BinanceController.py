@@ -4,6 +4,7 @@ import ccxt
 from bs4 import BeautifulSoup
 import urllib.request as req
 import NotificationCenter
+import time
 
 
 class BinanceControllerClass:
@@ -20,6 +21,16 @@ class BinanceControllerClass:
         coin = info[-1]['price']
         print("現在の価格:", coin)
         return coin
+
+    def get_ticker(self):
+        while True:
+            try:
+                prices = self.client.get_all_tickers()
+                return prices
+            except Exception as e:
+                self.notify.debug(e)
+                time.sleep(1)
+                pass
 
     def get_balance(self):
         bi_balance = self.CCXT_binance.fetchBalance()
@@ -42,6 +53,8 @@ class BinanceControllerClass:
                 return order["origQty"]
             except Exception as e:
                 self.notify.critical(e, self.user)
+                time.sleep(1)
+                pass
 
     def sell_all(self, coin):
         while True:
@@ -55,6 +68,8 @@ class BinanceControllerClass:
                 return order["origQty"]
             except Exception as e:
                 self.notify.critical(e, self.user)
+                time.sleep(1)
+                pass
 
     def buy_piece(self, coin, qat):
         while True:
@@ -65,6 +80,8 @@ class BinanceControllerClass:
                 print("量：" + order["origQty"])
             except Exception as e:
                 self.notify.critical(e, self.user)
+                time.sleep(1)
+                pass
 
     def sell_piece(self, coin, qat):
         while True:
@@ -75,11 +92,19 @@ class BinanceControllerClass:
                 print("量：" + order["origQty"])
             except Exception as e:
                 self.notify.critical(e, self.user)
+                time.sleep(1)
+                pass
 
     # 取得配列の内訳
     # [OpenTime,Open,High,Low,Close,Volume,CloseTime,QuoteAssetVolume,NumberOfTrades,TakerBuyBaseAssetVolume,TakerBuyQuoteAssetVolume,Ignore]
     def coin_tec_1min(self, coin):
         klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_1MINUTE)
+        openP = [i[1] for i in klines]
+        openT = [self.deta_cul(i[0]) for i in klines]
+        return openP, openT
+
+    def coin_tec_15min(self, coin):
+        klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_15MINUTE)
         openP = [i[1] for i in klines]
         openT = [self.deta_cul(i[0]) for i in klines]
         return openP, openT

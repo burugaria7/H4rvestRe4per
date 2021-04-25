@@ -5,6 +5,11 @@ import BinanceController
 from datetime import date, datetime, timedelta
 import NotificationCenter
 import matplotlib.pyplot as plt
+import talib
+import numpy as np
+import pandas as pd
+from binance.client import Client
+import statistics
 
 
 class CalculationClass:
@@ -13,23 +18,34 @@ class CalculationClass:
         self.user = user
         self.notify = NotificationCenter.NotificationCenterClass("CalculationClass")
 
-    def maxmin_auto(self, coin, Start, End, Price):
-        klines = self.binance_instance.coin_raw_1min(coin)
+    def do_maxmin(self, dic):
+        start = dic['buy_time'].strftime("%Y/%m/%d %H:%M")
+        end = dic['sell_time'].strftime("%Y/%m/%d %H:%M")
+        max_min = {
+            'coin': dic['buy_coin'],
+            'price': dic['price'],
+            'start': datetime.strptime(start, '%Y/%m/%d %H:%M'),
+            'end': datetime.strptime(end, '%Y/%m/%d %H:%M')
+        }
+        return self.maxmin_auto(max_min)
+
+    def maxmin_auto(self, dic):
+        klines = self.binance_instance.coin_raw_1min(dic['coin'])
         openT = [self.binance_instance.deta_cul(i[0]) for i in klines]
         openX = [i[2] for i in klines]
         openN = [i[3] for i in klines]
-        ST = openT.index(Start)
-        ED = openT.index(End)
+        ST = openT.index(dic['start'])
+        ED = openT.index(dic['end'])
         MAX1 = [openX[i] for i in range(ED) if ST <= i]
         MIN1 = [openN[i] for i in range(ED) if ST <= i]
         Time = [openT[i] for i in range(ED) if ST <= i]
         info = []
         maxA = max(MAX1)
         minA = min(MIN1)
-        print("最大：", maxA, ",", (float(maxA) / float(Price) - 1), "%,", Time[MAX1.index(maxA)])
-        print("最小：", minA, ",", (1 - float(Price) / float(minA)), "%,", Time[MIN1.index(minA)])
+        print("最大：", maxA, ",", (float(maxA) / float(dic['price']) - 1), "%,", Time[MAX1.index(maxA)])
+        print("最小：", minA, ",", (1 - float(dic['price']) / float(minA)), "%,", Time[MIN1.index(minA)])
         info.extend(
-            [maxA, minA, (float(maxA) / float(Price) - 1), (1 - float(Price) / float(minA)), Time[MAX1.index(maxA)],
+            [maxA, minA, (float(maxA) / float(dic['price']) - 1), (1 - float(dic['price']) / float(minA)), Time[MAX1.index(maxA)],
              Time[MIN1.index(minA)]])
         return info
 
@@ -60,16 +76,6 @@ class CalculationClass:
             self.notify.info("BNBが不足のため買い足します", self.user)
             return True
         return False
-
-    def do_maxmin(self, dic):
-        time = dic['dt_now'].strftime("%Y/%m/%d %H:%M")
-        max_min = {
-            'coin': dic['usecoin'],
-            'price': dic['price'],
-            'start': datetime.strptime(time, '%Y/%m/%d %H:%M'),
-            'end': None
-        }
-        return max_min
 
     # datetimeをstrに変換してjsonで使えるように
     def json_dumps(self, json_obj):
@@ -103,50 +109,105 @@ class CalculationClass:
         plt.savefig(save_dir + 'plot.png')
         plt.ioff()
 
-    def check_deadline(self):
+    # 1:1min 2:5min 3:15min
+    def cul_tec(self, coin, period):
+        tec = {
+            'coin': coin,
+            'macdline': 0,
+            'rsi14': 0,
+            'wasOverbuy': False,
+            'wasOversold': False,
+            'crossover_buy': False,
+            'crossover_sell': False,
+            'choice': False,
+            'do_sell': False
+        }
+        RSISoldLevel = 30
+        RSIBuyLevel = 70
+
+        if period == 1:
+            Price, Time = self.binance_instance.coin_tec_1min(coin)
+        elif period == 2:
+            Price, Time = self.binance_instance.coin_tec_5min(coin)
+        else:
+            Price, Time = self.binance_instance.coin_tec_15min(coin)
+
+        items = pd.DataFrame({'Value': Price, 'Time': Time})
+
+        # データをnumpy行列に変換する
+        price = np.array(items['Value'], dtype='f8')
+        macd, macdsignal, macdhist = talib.MACD(price, fastperiod=12, slowperiod=26, signalperiod=9)
+        rsi14 = talib.RSI(price, timeperiod=14)
+        tec['rsi14'] = rsi14[-1]
+
+        macdline = macd - macdsignal
+        tec['macdline'] = macdline[-1]
+
+
+        if (rsi14[-1] <= RSISoldLevel or rsi14[-2] <= RSISoldLevel or rsi14[-3] <= RSISoldLevel or rsi14[
+            -4] <= RSISoldLevel or rsi14[-5] <= RSISoldLevel or rsi14[-6] <= RSISoldLevel):
+            tec['wasOversold'] = True
+
+        if rsi14[-1] >= RSIBuyLevel or rsi14[-2] >= RSIBuyLevel or rsi14[-3] >= RSIBuyLevel or rsi14[
+            -4] >= RSIBuyLevel or rsi14[-5] >= RSIBuyLevel or rsi14[-6] >= RSIBuyLevel:
+            tec['wasOverbuy'] = True
+
+        if macdhist[-1] >= 0 and macdline[-1] > 0 and macdline[-2] < 0:
+            tec['crossover_buy'] = True
+
+        if macdhist[-1] <= 0 and macdline[-1] < 0 and macdline[-2] > 0:
+            tec['crossover_sell'] = True
+
+        if tec['wasOversold'] and tec['crossover_buy']:
+            tec['choice'] = True
+
+        if tec['wasOverbuy'] and tec['crossover_sell']:
+            tec['do_sell'] = True
+
+        return tec
+
+    def check_1minute(self, usecoin):
         while True:
-            r = gspread1.txt_readlist()
-            notuse, coinlist = gspread1.coin_read()
-            reslist = []
-            tmp = {}
-            paycoin = gspread1.usedpay_read()
-            print("------------------------------")
-            if r:
-                for j, k in r.items():
-                    dead = k + timedelta(hours=1)
-                    now = datetime.now()
-                    dicc = searchcoin.cul_tec(j)
-                    if j == paycoin:
-                        print("前回に決済に使われた通貨")
-                    elif dead < now or dicc["crossoversell"] and not dicc["crossoverbuy"]:
-                        if dicc["crossoversell"]:
-                            print("下降トレンド", j)
-                        if dead < now:
-                            print("期限切れ", j)
+            try:
+                klines = self.binance_instance.get_klines(symbol=usecoin, interval=Client.KLINE_INTERVAL_1MINUTE)
+                NumberOfTrades = [i[8] for i in klines]
+                return statistics.mean(NumberOfTrades)
+            except Exception as e:
+                self.notify.critical(e)
+                time.sleep(1)
+                pass
 
-                    else:
-                        tmp[j] = k
+    def prepare_log_data_set(self, data):
+        raw_data = []
 
-            for i in coinlist:
-                dicc = searchcoin.cul_tec(i)
-                if i == paycoin:
-                    print("追加無し", i)
-                elif dicc["crossoversell"] and not dicc["crossoverbuy"]:
-                    print("下降トレンドのため追加無し:", i)
-                elif gspread1.time_read() + timedelta(hours=1) < datetime.now():
-                    print("監視中通貨なし")
-                else:
-                    if len(tmp) < 8:
-                        print(dicc)
-                        tmp[i] = gspread1.time_read()
-                        print("追加された通貨:", i)
-                time.sleep(3)
-            gspread1.txt_writelist(tmp)
-            for a in tmp.keys():
-                reslist.append(a)
-            if reslist:
-                return reslist
-            time.sleep(5)
+        # date_insert
+        buy_date = str(data['buy_time'])
+        buy_date_list = buy_date.split(' ')
+
+        sell_date = str(data['sell_time'])
+        sell_date_list = sell_date.split(' ')
+
+        raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
+        raw_data.extend([data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'], data['mode']])
+
+        max_and_min = self.do_maxmin(data)
+        if max_and_min[2] <= max_and_min[3]:
+            percent = (float(max_and_min[3]) / float(max_and_min[2]) - 1)
+            raw_data.append(percent)
+        else:
+            percent = (1 - float(max_and_min[3]) / float(max_and_min[3]))
+            raw_data.append(percent)
+        for j in max_and_min:
+            if isinstance(j, type(max_and_min[-1])):
+                raw_data.append(str(j))
+            else:
+                raw_data.append(j)
+
+        return raw_data
+
+
+
+
 
 if __name__ == "__main__":
     print("")

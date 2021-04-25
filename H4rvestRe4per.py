@@ -7,6 +7,8 @@ import time
 import threading
 import SheetController
 import CacheManager as Cache
+import CoinSelector
+from datetime import date, datetime, timedelta
 
 
 class H4rvestRe4perClass:
@@ -22,10 +24,12 @@ class H4rvestRe4perClass:
                         '2': {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
                               'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
                               }}
+        self.binance_instance = BinanceController.BinanceControllerClass('', '', 3)
         self.binance_instance_1 = BinanceController.BinanceControllerClass(self.account['1']['api_key'],
                                                                            self.account['1']['api_secret'], 1)
         self.binance_instance_2 = BinanceController.BinanceControllerClass(self.account['2']['api_key'],
                                                                            self.account['2']['api_secret'], 2)
+        self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 3)
         self.Calculation_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
         self.Calculation_instance_2 = Calculation.CalculationClass(self.binance_instance_2, 2)
         self.ScrapingManager_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
@@ -33,136 +37,92 @@ class H4rvestRe4perClass:
         self.notify = NotificationCenter.NotificationCenterClass("MainClass")
         self.scr = ScrapingManager.ScrapingManagerClass()
         self.sheet = SheetController.SheetControllerClass()
+        self.selector = CoinSelector.CoinSelectorClass()
+        self.coin_buffer = {}
+        self.observe_que = {}
+        self.OBSERVE_TIME = timedelta(hours=1)
+        self.MAX_OBSERVE = 8
+        self.available_api1 = True
+        self.available_api2 = True
 
-    def coin_balance(self):
-        # a = self.binance_instance_1.get_balance()
-        b = self.binance_instance_2.get_balance()
-        self.notify.debug("1")
-
-    def main_bot(self):
+        # ポジションを持っていたら売却スレッドをたてる
         for i in self.account:
+            Dic = Cache.get_position_cache(i)
+            if Dic['status']:
+                thread_sell = threading.Thread(target=self.sell_bot(i))
+                thread_sell.start()
+
+    def search_bot(self):
+        while True:
+            if len(self.observe_que) > self.MAX_OBSERVE:
+                continue
+            if self.selector.get_selected_coin() and not self.coin_buffer:
+                self.coin_buffer = self.selector.get_selected_coin()
+                for i in self.coin_buffer:
+                    self.observe_que[i] = datetime.now() + self.OBSERVE_TIME
+                    if i not in self.observe_que:
+                        thread_observer = threading.Thread(target=self.coin_observer(i))
+                        thread_observer.start()
+                        # 　監視スレッド起動
+
+    def coin_observer(self, pair):
+        while self.available_api1 or self.available_api2:
+            Tec = self.Calculation_instance.cul_tec(pair, 1)
             dict = {
+                'user': 0,
                 'status': False,
-                'dt_now': None,
-                'price': 0,
-                'usecoin': currentcoin,
+                'pair': pair,
                 'amount': 0,
-                'wasOverbuy': False,
-                'wasOversold': False,
-                'crossoverbuy': False,
-                'crossoversold': False,
-                'buycoin': 0,
-                'sellcoin': 0,
+                'buy_time': None,
+                'sell_time': None,
+                'buy_coin': 0,
+                'sell_coin': 0,
+                'profit': 0,
                 'mode': 0,
             }
-            dict = Cache.get_position_cache(i)
-            if len(dict) > 0:
+            if Tec['choice']:
+                if self.available_api1:
+                    dict['amount'] = self.binance_instance_1.buy_all(pair)
+                    dict['buy_coin'] = self.binance_instance_1.get_price(pair)
+                    dict['status'] = True
+                    dict['user'] = 1
+                    dict['buy_time'] = datetime.now()
+                    Cache.set_position_cache(1, dict)
+                    self.available_api1 = False
+                    thread_sell = threading.Thread(target=self.sell_bot(1))
+                    thread_sell.start()
+                elif self.available_api2:
+                    dict['amount'] = self.binance_instance_2.buy_all(pair)
+                    dict['buy_coin'] = self.binance_instance_2.get_price(pair)
+                    dict['status'] = True
+                    dict['user'] = 2
+                    dict['buy_time'] = datetime.now()
+                    Cache.set_position_cache(2, dict)
+                    self.available_api2 = False
+                    thread_sell = threading.Thread(target=self.sell_bot(2))
+                    thread_sell.start()
 
-            else:
+    def sell_bot(self, user):
+        while not self.available_api1 or not self.available_api2:
+            dict = Cache.get_position_cache(user)
+            Tec = self.Calculation_instance.cul_tec(dict['pair'], 1)
+            if Tec['do_sell']:
+                if user == 1:
+                    dict['sell_coin'] = self.binance_instance_1.get_price(dict['pair'])
+                    dict['status'] = False
+                    dict['sell_time'] = datetime.now()
+                    dict['profit'] = self.binance_instance_1.get_balance()
+                    self.binance_instance_1.sell_all(dict['pair'])
+                    self.available_api1 = True
+                elif user == 2:
+                    dict['sell_coin'] = self.binance_instance_2.get_price(dict['pair'])
+                    dict['status'] = False
+                    dict['sell_time'] = datetime.now()
+                    dict['profit'] = self.binance_instance_2.get_balance()
+                    self.binance_instance_2.sell_all(dict['pair'])
+                    self.available_api1 = True
+                self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
 
-
-
-
-        while True:
-            notuse, coinlist1 = gspread1.coin_read()
-            coinlist = check_deadline()
-            print("------------------------------")
-            print("検出通貨:", coinlist)
-            for usecoin in coinlist:
-                dict['usecoin'] = usecoin
-                print("------------------------------")
-                print("監視中:", usecoin)
-                gspread1.txt_write(usecoin)
-                dict['dt_now'] = datetime.now()
-                print("------------------------------")
-                print(dict['dt_now'])
-                RSISoldLevel = 30
-                RSIBuyLevel = 70
-                dict['crossoverbuy'] = False
-                dict['crossoversold'] = False
-                dict = info(dict, usecoin)
-                print("チェック中")
-                # 全期間のビットコインの価格を取得する
-                Price, Time = coin.maxmin_day(usecoin)
-                items = pd.DataFrame({'Value': Price, 'Time': Time})
-
-                # データをnumpy行列に変換する
-                price = np.array(items['Value'], dtype='f8')
-                date = np.array(items['Time'])
-                macd, macdsignal, macdhist = talib.MACD(price, fastperiod=12, slowperiod=26, signalperiod=9)
-                rsi14 = talib.RSI(price, timeperiod=14)
-                tec['rsi14'] = rsi14[-1]
-                plt.clf()
-                plt.close('all')
-                plot_main(date, price, macd, macdsignal, macdhist, rsi14)
-
-                macdline = macd - macdsignal
-                tec['macdlineAfter'] = macdline[-1]
-                tec['macdlineBefore'] = macdline[-2]
-                print("RSI14:", tec['rsi14'])
-                print("macdlineAfter:", tec['macdlineAfter'])
-                print("macdlineBefore:", tec['macdlineBefore'])
-
-                if rsi14[-1] >= RSIBuyLevel or rsi14[-2] >= RSIBuyLevel or rsi14[-3] >= RSIBuyLevel or rsi14[
-                    -4] >= RSIBuyLevel or rsi14[-5] >= RSIBuyLevel or rsi14[-6] >= RSIBuyLevel:
-                    dict['wasOverbuy'] = True
-                    print("現在は買われすぎです")
-                    line.send_line_notify("現在は買われすぎです")
-
-                if rsi14[-1] <= RSISoldLevel:
-                    dict['wasOversold'] = True
-                    print("現在は売られすぎです")
-                    line.send_line_notify("現在は売られすぎです")
-
-                if macdhist[-1] >= 0 and macdline[-1] > 0 and macdline[-2] < 0:
-                    dict['crossoverbuy'] = True
-                    print("クロスオーバー:買い時")
-                    line.send_line_notify("クロスオーバー:買い時")
-                if macdhist[-1] <= 0 and macdline[-1] < 0 and macdline[-2] > 0:
-                    dict['crossoversold'] = True
-                    print("クロスオーバー:売り時")
-                    line.send_line_notify("クロスオーバー:売り時")
-
-                if dict['wasOversold'] and dict['crossoverbuy'] and not dict['status']:
-                    if self.scr.cul_trend_from_tradingview(2, "BTCUSDT") and self.scr.cul_trend_from_tradingview(2,
-                                                                                                                 dict[
-                                                                                                                     'usecoin']):
-                        print("買い注文最終確定・・・")
-                        r = gspread1.txt_readlist()
-                        r[usecoin] = datetime.now()
-                        gspread1.txt_writelist(r)
-                        dict['amount'] = paypay.marketbuy()
-                        print(dict['price'], "で買いました")
-                        line.send_line_notify(str(dict['price']) + "で買いました(おおよそ)")
-                        dict['status'] = True
-                        dict['buycoin'] = dict['price']
-                        dict['sellcoin'] = 0
-                        dict['mode'] = 0
-                        do_maxmin(dict)
-                        buylist.append(dict['price'])
-                        show_pay(buylist, selllist)
-                        show_coin()
-                        set_chart_url(dict['usecoin'])
-                        spread_input(dict, cul_profit(paypay.myself_info2()), usecoin)
-                        gspread1.deta_write4(usecoin)
-                        gspread1.line1_send()
-                        gspread1.usedpay_write(str(gspread1.current_read()))
-                        sellonly.auto_ST()
-                    elif not self.scr.cul_trend_from_tradingview(2, dict['usecoin']):
-                        print("買いの判定がありませんでした")
-                        line.send_line_notify2("買いの判定がありませんでした")
-                    else:
-                        print("BTCの強い売りにより買い注文実行中止・・")
-                        line.send_line_notify2("BTCの強い売りにより買い注文実行中止・・")
-                if dict['wasOverbuy'] or dict['wasOversold'] or dict['crossoverbuy'] or dict['crossoversold']:
-                    line.send_line_gazo("現在のチャート")
-                    line.send_line_notify("\n" + sugoi_json_dumps(dict))
-                    line.send_line_notify("\n" + sugoi_json_dumps(tec))
-                gspread1.dis_writelist(dict)
-                time.sleep(60 / len(coinlist))
-
-    def sell_bot(self):
-        print()
 
 
 if __name__ == "__main__":
