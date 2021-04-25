@@ -40,8 +40,11 @@ class H4rvestRe4perClass:
         self.selector = CoinSelector.CoinSelectorClass()
         self.coin_buffer = {}
         self.observe_que = {}
+        # 一回認識したら最低限監視する期間
         self.OBSERVE_TIME = timedelta(hours=1)
+        # 監視するコインペアの上限値
         self.MAX_OBSERVE = 8
+        # Falseで初期化することでそのAPIを使わない設定にできるよ☆
         self.available_api1 = True
         self.available_api2 = True
 
@@ -49,13 +52,18 @@ class H4rvestRe4perClass:
         for i in self.account:
             Dic = Cache.get_position_cache(i)
             if Dic['status']:
+                # 未決済ポジションがあるため、売却スレッドを建てる
+                self.notify.debug("未決済ポジションがあるため、売却スレッドを建てます")
                 thread_sell = threading.Thread(target=self.sell_bot(i))
                 thread_sell.start()
 
     def search_bot(self):
+        self.notify.debug("[search_bot]起動！")
         while True:
+            # 監視してるコインが上限値超えてたら、一旦休憩
             if len(self.observe_que) > self.MAX_OBSERVE:
                 continue
+            # なんかコイン認識したら = なんか新しく認識したら回る
             if self.selector.get_selected_coin() and not self.coin_buffer:
                 self.coin_buffer = self.selector.get_selected_coin()
                 for i in self.coin_buffer:
@@ -66,6 +74,7 @@ class H4rvestRe4perClass:
                         # 　監視スレッド起動
 
     def coin_observer(self, pair):
+        self.notify.debug("[coin_observer, pair= " + str(pair) + "]起動！")
         while self.available_api1 or self.available_api2:
             Tec = self.Calculation_instance.cul_tec(pair, 1)
             dict = {
@@ -104,6 +113,7 @@ class H4rvestRe4perClass:
                 return
 
     def sell_bot(self, user):
+        self.notify.debug("[sell_bot, user= " + str(user) + "]起動！")
         while not self.available_api1 or not self.available_api2:
             dict = Cache.get_position_cache(user)
             Tec = self.Calculation_instance.cul_tec(dict['pair'], 1)
