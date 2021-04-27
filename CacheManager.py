@@ -1,4 +1,5 @@
 import pickle
+from datetime import datetime, timedelta
 
 
 # 監視している通貨リスト
@@ -54,7 +55,9 @@ if __name__ == "__main__":
         'sellcoin': 0,
         'mode': 0,
     }
-    data = {}
+    data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
+            'BATUSDT': datetime.now() + timedelta(hours=1)
+            }
     set_position_cache(1,dict)
-    print(get_monitoring_currency_cache())
+    set_monitoring_currency_cache(data)
     print(get_position_cache(1))

@@ -47,9 +47,9 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic['USDT'] / float(self.get_price(coin)))
                 order = self.client.order_market_buy(symbol=coin, quantity=qat)
-                self.notify.debug(order["symbol"])
-                self.notify.debug(order["side"])
-                self.notify.debug("量：" + order["origQty"])
+                self.notify.debug("[buy_all]"+order["symbol"])
+                self.notify.debug("[buy_all]"+order["side"])
+                self.notify.debug("[buy_all]"+"量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
                 self.notify.critical(e, self.user)
@@ -62,9 +62,9 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic[coin.replace('USDT', '')])
                 order = self.client.order_market_sell(symbol=coin, quantity=qat)
-                print(order["symbol"])
-                print(order["side"])
-                print("量：" + order["origQty"])
+                self.notify.debug("[sell_all]" + order["symbol"])
+                self.notify.debug("[sell_all]" + order["side"])
+                self.notify.debug("[sell_all]" + "量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
                 self.notify.critical(e, self.user)

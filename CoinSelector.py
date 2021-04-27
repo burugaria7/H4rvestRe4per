@@ -56,7 +56,7 @@ class CoinSelectorClass:
                     self.selected_coin = sorted_dic
                     self.update_time = datetime.now()
                 else:
-                    self.notify.debug("検出なし")
+                    self.notify.debug("[coin_selector]"+"15分足上昇コイン検出なし")
             else:
-                self.notify.debug("検出なし")
+                self.notify.debug("[coin_selector]"+"15分足上昇コイン検出なし")
 
