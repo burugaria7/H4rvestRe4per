@@ -3,16 +3,16 @@ import pickle
 
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
-    with open('save/monitoring_currency_cache.bin') as f:
-        data = f.read()
-        f.close()
-        return data
+    f = open('save/monitoring_currency_cache.bin','rb')
+    r = pickle.load(f)
+    return r
 
 
 def set_monitoring_currency_cache(data):
-    f = open('save/monitoring_currency_cache.bin', 'w')
-    f.write(data)
-    return f.close()
+    f = open('save/monitoring_currency_cache.bin','wb')
+    pickle.dump(data, f)
+    f.close()
+
 
 
 # 今取引しているコインについての情報
@@ -41,7 +41,7 @@ class CacheManagerClass:
 
 if __name__ == "__main__":
     dict = {
-        'status': True,
+        'status': False,
         'dt_now': None,
         'price': 0,
         'usecoin': None,
@@ -54,5 +54,7 @@ if __name__ == "__main__":
         'sellcoin': 0,
         'mode': 0,
     }
+    data = {}
     set_position_cache(1,dict)
+    print(get_monitoring_currency_cache())
     print(get_position_cache(1))

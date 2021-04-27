@@ -33,7 +33,7 @@ class CoinSelectorClass:
                 while True:
                     try:
                         dic = self.calculation.cul_tec(i, 3)
-                        self.notify.debug(str(i) + str(dic))
+                        # self.notify.debug(str(i) + str(dic))
                         if dic['choice']:
                             choice.append(i)
                         break

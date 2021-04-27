@@ -58,8 +58,8 @@ class H4rvestRe4perClass:
             if Dic['status']:
                 # 未決済ポジションがあるため、売却スレッドを建てる
                 self.notify.debug("未決済ポジションがあるため、売却スレッドを建てます" + str(i))
-                # thread_sell = threading.Thread(target=self.sell_bot(i))
-                # thread_sell.start()
+                thread_sell = threading.Thread(target=self.sell_bot(i))
+                thread_sell.start()
 
         self.notify.debug("search_botスレッドを起動します")
         thread_search = threading.Thread(target=self.search_bot())
