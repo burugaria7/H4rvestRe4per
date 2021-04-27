@@ -41,7 +41,7 @@ class CacheManagerClass:
 
 if __name__ == "__main__":
     dict = {
-        'status': False,
+        'status': True,
         'dt_now': None,
         'price': 0,
         'usecoin': None,
@@ -54,5 +54,5 @@ if __name__ == "__main__":
         'sellcoin': 0,
         'mode': 0,
     }
-    set_position_cache(2,dict)
-    print(get_position_cache(2))
+    set_position_cache(1,dict)
+    print(get_position_cache(1))

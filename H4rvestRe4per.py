@@ -39,7 +39,7 @@ class H4rvestRe4perClass:
         self.sheet = SheetController.SheetControllerClass()
         self.selector = CoinSelector.CoinSelectorClass()
         self.coin_buffer = {}
-        self.observe_que = {}
+        self.observe_que = Cache.get_monitoring_currency_cache()
         # 一回認識したら最低限監視する期間
         self.OBSERVE_TIME = timedelta(hours=1)
         # 監視するコインペアの上限値
@@ -48,34 +48,61 @@ class H4rvestRe4perClass:
         self.available_api1 = True
         self.available_api2 = True
 
+        self.notify.debug("coin_selectorスレッドを起動します")
+        thread_selector = threading.Thread(target=self.selector.coin_selector())
+        thread_selector.start()
+
         # ポジションを持っていたら売却スレッドをたてる
         for i in self.account:
-            Dic = Cache.get_position_cache(i)
+            Dic = Cache.get_position_cache(int(i))
             if Dic['status']:
                 # 未決済ポジションがあるため、売却スレッドを建てる
-                self.notify.debug("未決済ポジションがあるため、売却スレッドを建てます")
-                thread_sell = threading.Thread(target=self.sell_bot(i))
-                thread_sell.start()
+                self.notify.debug("未決済ポジションがあるため、売却スレッドを建てます" + str(i))
+                # thread_sell = threading.Thread(target=self.sell_bot(i))
+                # thread_sell.start()
+
+        self.notify.debug("search_botスレッドを起動します")
+        thread_search = threading.Thread(target=self.search_bot())
+        thread_search.start()
 
     def search_bot(self):
         self.notify.debug("[search_bot]起動！")
         while True:
-            # 監視してるコインが上限値超えてたら、一旦休憩
-            if len(self.observe_que) > self.MAX_OBSERVE:
-                continue
+            tmp = {}
+            if self.observe_que:
+                for i, j in self.observe_que:
+                    dicc = self.Calculation_instance.cul_tec(i, 3)
+                    if j < datetime.now() or dicc['detect_descent']:
+                        if j < datetime.now():
+                            self.notify.debug(str(i)+"を監視から外します(期限切れ)")
+                        elif dicc['detect_descent']:
+                            self.notify.debug(str(i)+"を監視から外します(下降トレンド)")
+                    else:
+                        tmp[i] = j
+            self.observe_que = tmp
             # なんかコイン認識したら = なんか新しく認識したら回る
-            if self.selector.get_selected_coin() and not self.coin_buffer:
+            if self.selector.get_selected_coin().keys() != self.observe_que.keys():
                 self.coin_buffer = self.selector.get_selected_coin()
                 for i in self.coin_buffer:
-                    self.observe_que[i] = datetime.now() + self.OBSERVE_TIME
-                    if i not in self.observe_que:
+                    # 監視してるコインが上限値超えてたら、一旦休憩
+                    if len(self.observe_que) > self.MAX_OBSERVE:
+                        break
+                    dicc = self.Calculation_instance.cul_tec(i, 3)
+                    if dicc['detect_descent']:
+                        self.notify.debug(str(i) + "を監視から外します(下降トレンド)")
+                    elif self.selector.get_update_time() < datetime.now():
+                        self.notify.debug(str(i) + "を監視から外します(期限切れ)")
+                    elif i not in self.observe_que:
+                        self.notify.debug(str(i) + "を監視キューに追加しスレッドを起動")
+                        self.observe_que[i] = datetime.now() + self.OBSERVE_TIME
                         thread_observer = threading.Thread(target=self.coin_observer(i))
                         thread_observer.start()
                         # 　監視スレッド起動
+                Cache.set_monitoring_currency_cache(self.observe_que)
 
     def coin_observer(self, pair):
         self.notify.debug("[coin_observer, pair= " + str(pair) + "]起動！")
-        while self.available_api1 or self.available_api2:
+        while self.available_api1 or self.available_api2 and pair in self.observe_que:
             Tec = self.Calculation_instance.cul_tec(pair, 1)
             dict = {
                 'user': 0,
@@ -138,4 +165,3 @@ class H4rvestRe4perClass:
 
 if __name__ == "__main__":
     hr = H4rvestRe4perClass()
-    hr.search_bot()

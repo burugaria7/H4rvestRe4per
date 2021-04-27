@@ -119,6 +119,7 @@ class CalculationClass:
             'wasOversold': False,
             'crossover_buy': False,
             'crossover_sell': False,
+            'detect_descent':False,
             'choice': False,
             'do_sell': False
         }
@@ -160,6 +161,9 @@ class CalculationClass:
 
         if tec['wasOversold'] and tec['crossover_buy']:
             tec['choice'] = True
+
+        if macdhist[-1] <= 0 and macdline[-1] < 0:
+            tec['detect_descent'] = True
 
         if tec['wasOverbuy'] and tec['crossover_sell']:
             tec['do_sell'] = True
