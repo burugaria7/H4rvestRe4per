@@ -137,6 +137,8 @@ class H4rvestRe4perClass:
                     Cache.set_position_cache(1, dict)
                     self.available_api1 = False
                     del self.observe_que[pair]
+                    self.notify.info("買いました", 1)
+                    self.notify.info(str(dict), 1)
                     self.notify.debug("[coin_observer]"+"買い処理成功！（１）")
                     self.sell_bot(1)
                 elif self.available_api2:
@@ -149,6 +151,8 @@ class H4rvestRe4perClass:
                     Cache.set_position_cache(2, dict)
                     self.available_api2 = False
                     del self.observe_que[pair]
+                    self.notify.info("買いました", 2)
+                    self.notify.info(str(dict), 2)
                     self.notify.debug("[coin_observer]"+"買い処理成功！（２）")
                     self.sell_bot(2)
                 return
@@ -168,6 +172,8 @@ class H4rvestRe4perClass:
                     dict['sell_time'] = datetime.now()
                     dict['profit'] = self.binance_instance_1.get_balance()
                     # self.binance_instance_1.sell_all(dict['pair'])
+                    self.notify.info("売りました", 1)
+                    self.notify.info(str(dict), 1)
                     self.notify.debug("[sell_bot]" + "売り処理成功！（１）")
                     self.available_api1 = True
                 elif user == 2:
@@ -176,6 +182,8 @@ class H4rvestRe4perClass:
                     dict['sell_time'] = datetime.now()
                     dict['profit'] = self.binance_instance_2.get_balance()
                     # self.binance_instance_2.sell_all(dict['pair'])
+                    self.notify.info("売りました", 2)
+                    self.notify.info(str(dict), 2)
                     self.notify.debug("[sell_bot]" + "売り処理成功！（２）")
                     self.available_api2 = True
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
