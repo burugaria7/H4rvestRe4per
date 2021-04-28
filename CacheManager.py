@@ -4,16 +4,20 @@ from datetime import datetime, timedelta
 
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
-    f = open('save/monitoring_currency_cache.bin','rb')
-    r = pickle.load(f)
-    return r
+    try:
+        f = open('save/monitoring_currency_cache.bin', 'rb')
+        r = pickle.load(f)
+        return r
+    except:
+        data = {}
+        set_monitoring_currency_cache(data)
+        return data
 
 
 def set_monitoring_currency_cache(data):
-    f = open('save/monitoring_currency_cache.bin','wb')
+    f = open('save/monitoring_currency_cache.bin', 'wb')
     pickle.dump(data, f)
     f.close()
-
 
 
 # 今取引しているコインについての情報
@@ -22,10 +26,15 @@ def set_monitoring_currency_cache(data):
 def get_position_cache(user):
     if user != 1 and user != 2:
         return
-    path = 'save/position_cache' + str(user) + '.bin'
-    with open(path, 'rb') as web:
-        r = pickle.load(web)
-        return r
+    try:
+        path = 'save/position_cache' + str(user) + '.bin'
+        with open(path, 'rb') as web:
+            r = pickle.load(web)
+            return r
+    except:
+        data = {}
+        set_position_cache(user, data)
+        return data
 
 
 def set_position_cache(user, data):
@@ -39,6 +48,7 @@ def set_position_cache(user, data):
 class CacheManagerClass:
     def __init__(self):
         pass
+
 
 if __name__ == "__main__":
     dict = {
@@ -58,6 +68,6 @@ if __name__ == "__main__":
     data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
             'BATUSDT': datetime.now() + timedelta(hours=1)
             }
-    set_position_cache(1,dict)
+    set_position_cache(1, dict)
     set_monitoring_currency_cache(data)
     print(get_position_cache(1))
