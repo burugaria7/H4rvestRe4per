@@ -34,10 +34,8 @@ class H4rvestRe4perClass:
         self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 3)
         self.Calculation_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
         self.Calculation_instance_2 = Calculation.CalculationClass(self.binance_instance_2, 2)
-        self.ScrapingManager_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
-        self.ScrapingManager_instance_2 = Calculation.CalculationClass(self.binance_instance_2, 2)
         self.notify = NotificationCenter.NotificationCenterClass("MainClass")
-        self.scr = ScrapingManager.ScrapingManagerClass()
+        self.scraping = ScrapingManager.ScrapingManagerClass()
         self.sheet = SheetController.SheetControllerClass()
         self.selector = CoinSelector.CoinSelectorClass()
         self.coin_buffer = {}
@@ -127,10 +125,11 @@ class H4rvestRe4perClass:
                 'profit': 0,
                 'mode': 0,
             }
-            if Tec['choice']:
+            if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1, pair) and self.scraping.cul_trend_from_tradingview(2, pair):
                 self.notify.debug("[coin_observer]"+"買い処理をします")
                 if self.available_api1:
-                    dict['amount'] = self.binance_instance_1.buy_all(pair)
+                    dict['amount'] = '6666666'
+                    # dict['amount'] = self.binance_instance_1.buy_all(pair)
                     dict['buy_coin'] = self.binance_instance_1.get_price(pair)
                     dict['status'] = True
                     dict['user'] = 1
@@ -138,10 +137,11 @@ class H4rvestRe4perClass:
                     Cache.set_position_cache(1, dict)
                     self.available_api1 = False
                     del self.observe_que[pair]
-                    self.notify.debug("[coin_observer]"+"買い処理成功！")
+                    self.notify.debug("[coin_observer]"+"買い処理成功！（１）")
                     self.sell_bot(1)
                 elif self.available_api2:
-                    dict['amount'] = self.binance_instance_2.buy_all(pair)
+                    dict['amount'] = '6666666'
+                    # dict['amount'] = self.binance_instance_2.buy_all(pair)
                     dict['buy_coin'] = self.binance_instance_2.get_price(pair)
                     dict['status'] = True
                     dict['user'] = 2
@@ -149,7 +149,7 @@ class H4rvestRe4perClass:
                     Cache.set_position_cache(2, dict)
                     self.available_api2 = False
                     del self.observe_que[pair]
-                    self.notify.debug("[coin_observer]"+"買い処理成功！")
+                    self.notify.debug("[coin_observer]"+"買い処理成功！（２）")
                     self.sell_bot(2)
                 return
             time.sleep(10)
@@ -158,22 +158,26 @@ class H4rvestRe4perClass:
         self.notify.debug("[sell_bot, user= " + str(user) + "]起動！")
         while not self.available_api1 or not self.available_api2:
             dict = Cache.get_position_cache(user)
+            sell_algorithm = self.Calculation_instance.sell_algorithm(dict)
             Tec = self.Calculation_instance.cul_tec(dict['pair'], 1)
-            if Tec['do_sell']:
+            if Tec['do_sell'] or sell_algorithm['win'] or sell_algorithm['loss']:
+                self.notify.debug("[sell_bot]" + "売り処理をします")
                 if user == 1:
                     dict['sell_coin'] = self.binance_instance_1.get_price(dict['pair'])
                     dict['status'] = False
                     dict['sell_time'] = datetime.now()
                     dict['profit'] = self.binance_instance_1.get_balance()
-                    self.binance_instance_1.sell_all(dict['pair'])
+                    # self.binance_instance_1.sell_all(dict['pair'])
+                    self.notify.debug("[sell_bot]" + "売り処理成功！（１）")
                     self.available_api1 = True
                 elif user == 2:
                     dict['sell_coin'] = self.binance_instance_2.get_price(dict['pair'])
                     dict['status'] = False
                     dict['sell_time'] = datetime.now()
                     dict['profit'] = self.binance_instance_2.get_balance()
-                    self.binance_instance_2.sell_all(dict['pair'])
-                    self.available_api1 = True
+                    # self.binance_instance_2.sell_all(dict['pair'])
+                    self.notify.debug("[sell_bot]" + "売り処理成功！（２）")
+                    self.available_api2 = True
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
                 return
             time.sleep(10)
@@ -181,4 +185,3 @@ class H4rvestRe4perClass:
 
 if __name__ == "__main__":
     hr = H4rvestRe4perClass()
-    hr.coin_observer('XEMUSDT')

@@ -23,7 +23,7 @@ class ScrapingManagerClass:
         driver.get(TARGET_URL)
         time.sleep(2)
         tab = driver.find_element_by_xpath(
-            '//*[@id="technicals-root"]/div/div/div[1]/div/div/div[1]/div/div/div[' + str(period) + ']')
+            '//*[@id="technicals-root"]/div/div/div[1]/div/div/div/button[' + str(period) + ']')
         tab.click()
         time.sleep(1)
 
@@ -48,6 +48,7 @@ class ScrapingManagerClass:
         # print("buy=", buy_val)
         return trend
 
+    # period 1:1分足 2:5分足 3:15分足 4:1時間足
     def cul_trend_from_tradingview(self, period, pair):
         trend = self.get_tradingview_trend(period, pair)
         if float(trend['buy']) / sum(trend.values()) >= 0.6:
@@ -67,4 +68,4 @@ class ScrapingManagerClass:
 
 if __name__ == "__main__":
     inst = ScrapingManagerClass()
-    print(str(inst.get_price("BTCUSDT")))
+    print(inst.cul_trend_from_tradingview(2, 'BTCUSDT'))

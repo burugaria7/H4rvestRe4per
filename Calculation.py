@@ -45,7 +45,8 @@ class CalculationClass:
         print("最大：", maxA, ",", (float(maxA) / float(dic['price']) - 1), "%,", Time[MAX1.index(maxA)])
         print("最小：", minA, ",", (1 - float(dic['price']) / float(minA)), "%,", Time[MIN1.index(minA)])
         info.extend(
-            [maxA, minA, (float(maxA) / float(dic['price']) - 1), (1 - float(dic['price']) / float(minA)), Time[MAX1.index(maxA)],
+            [maxA, minA, (float(maxA) / float(dic['price']) - 1), (1 - float(dic['price']) / float(minA)),
+             Time[MAX1.index(maxA)],
              Time[MIN1.index(minA)]])
         return info
 
@@ -119,7 +120,7 @@ class CalculationClass:
             'wasOversold': False,
             'crossover_buy': False,
             'crossover_sell': False,
-            'detect_descent':False,
+            'detect_descent': False,
             'choice': False,
             'do_sell': False
         }
@@ -143,7 +144,6 @@ class CalculationClass:
 
         macdline = macd - macdsignal
         tec['macdline'] = macdline[-1]
-
 
         if (rsi14[-1] <= RSISoldLevel or rsi14[-2] <= RSISoldLevel or rsi14[-3] <= RSISoldLevel or rsi14[
             -4] <= RSISoldLevel or rsi14[-5] <= RSISoldLevel or rsi14[-6] <= RSISoldLevel):
@@ -192,7 +192,8 @@ class CalculationClass:
         sell_date_list = sell_date.split(' ')
 
         raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
-        raw_data.extend([data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'], data['mode']])
+        raw_data.extend(
+            [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'], data['mode']])
 
         max_and_min = self.do_maxmin(data)
         if max_and_min[2] <= max_and_min[3]:
@@ -209,8 +210,14 @@ class CalculationClass:
 
         return raw_data
 
-
-
+    # 売るためのalgorithm計算
+    def sell_algorithm(self, dict):
+        dict['price'] = self.binance_instance.get_price(dict['pair'])
+        if float(dict['buycoin']) * 0.97 >= float(dict['price']):
+            dict['loss'] = True
+        elif float(dict['buycoin']) * 1.03 <= float(dict['price']):
+            dict['win'] = True
+        return dict
 
 
 if __name__ == "__main__":
