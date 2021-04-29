@@ -3,7 +3,7 @@ from datetime import datetime
 import ccxt
 from bs4 import BeautifulSoup
 import urllib.request as req
-import NotificationCenter
+from NotificationCenter import debug, info, warning, error, critical
 import time
 import traceback
 
@@ -15,7 +15,6 @@ class BinanceControllerClass:
         self.user = user
         self.client = Client(api_key, api_secret)
         self.CCXT_binance = ccxt.binance({'apiKey': str(api_key), 'secret': str(api_secret), })
-        self.notify = NotificationCenter.NotificationCenterClass("BinanceControllerClass")
 
     def get_price(self, coin):
         info = self.client.get_recent_trades(symbol=coin)
@@ -29,7 +28,7 @@ class BinanceControllerClass:
                 prices = self.client.get_all_tickers()
                 return prices
             except Exception as e:
-                self.notify.debug(e)
+                debug(e)
                 time.sleep(1)
                 pass
 
@@ -48,12 +47,12 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic['USDT'] / float(self.get_price(coin)))
                 order = self.client.order_market_buy(symbol=coin, quantity=qat)
-                self.notify.debug("[buy_all]"+order["symbol"])
-                self.notify.debug("[buy_all]"+order["side"])
-                self.notify.debug("[buy_all]"+"量：" + order["origQty"])
+                debug("[buy_all]"+order["symbol"])
+                debug("[buy_all]"+order["side"])
+                debug("[buy_all]"+"量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
-                self.notify.critical(str(traceback.format_exc()), self.user)
+                critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 
@@ -63,12 +62,12 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic[coin.replace('USDT', '')])
                 order = self.client.order_market_sell(symbol=coin, quantity=qat)
-                self.notify.debug("[sell_all]" + order["symbol"])
-                self.notify.debug("[sell_all]" + order["side"])
-                self.notify.debug("[sell_all]" + "量：" + order["origQty"])
+                debug("[sell_all]" + order["symbol"])
+                debug("[sell_all]" + order["side"])
+                debug("[sell_all]" + "量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
-                self.notify.critical(str(traceback.format_exc()), self.user)
+                critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 
@@ -80,7 +79,7 @@ class BinanceControllerClass:
                 print(order["side"])
                 print("量：" + order["origQty"])
             except Exception as e:
-                self.notify.critical(str(traceback.format_exc()), self.user)
+                critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 
@@ -92,7 +91,7 @@ class BinanceControllerClass:
                 print(order["side"])
                 print("量：" + order["origQty"])
             except Exception as e:
-                self.notify.critical(str(traceback.format_exc()), self.user)
+                critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 

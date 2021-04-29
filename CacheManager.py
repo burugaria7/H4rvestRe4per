@@ -1,5 +1,6 @@
 import pickle
 from datetime import datetime, timedelta
+from NotificationCenter import debug, info, warning, error, critical
 
 
 # 監視している通貨リスト
@@ -32,8 +33,20 @@ def get_position_cache(user):
             r = pickle.load(web)
             return r
     except:
-        data = {}
+        data = {
+                'user': 0,
+                'status': False,
+                'pair': None,
+                'amount': 0,
+                'buy_time': None,
+                'sell_time': None,
+                'buy_coin': 0,
+                'sell_coin': 0,
+                'profit': 0,
+                'mode': 0,
+            }
         set_position_cache(user, data)
+        warning("[CacheManager]例外：ファイルがないので初期ファイルを作成します")
         return data
 
 

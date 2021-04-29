@@ -2,7 +2,6 @@ import subprocess
 
 import BinanceController
 import Calculation
-import NotificationCenter
 import ScrapingManager
 import schedule
 import time

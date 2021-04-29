@@ -3,7 +3,6 @@ import os
 import time
 import BinanceController
 from datetime import date, datetime, timedelta
-import NotificationCenter
 import matplotlib.pyplot as plt
 import talib
 import numpy as np
@@ -11,13 +10,13 @@ import pandas as pd
 from binance.client import Client
 import statistics
 import traceback
+from NotificationCenter import debug, info, warning, error, critical
 
 
 class CalculationClass:
     def __init__(self, binance_instance, user):
         self.binance_instance: BinanceController = binance_instance
         self.user = user
-        self.notify = NotificationCenter.NotificationCenterClass("CalculationClass")
 
     def do_maxmin(self, dic):
         start = dic['buy_time'].strftime("%Y/%m/%d %H:%M")
@@ -68,14 +67,14 @@ class CalculationClass:
     def set_chart_url(self, coin):
         recoin = coin.replace('USDT', '')
         url = "https://www.binance.com/ja/trade/" + recoin + "_USDT"
-        self.notify.debug("Binanceチャート" + url)
+        debug("Binanceチャート" + url)
         return url
 
     def tax_cul(self, dic):
         BNBprice = dic['BNB'] * float(self.binance_instance.get_price("BNBUSDT"))
-        self.notify.debug("BNB" + str(BNBprice / self.cul_profit(dic) * 100) + "%全体保有")
+        debug("BNB" + str(BNBprice / self.cul_profit(dic) * 100) + "%全体保有")
         if BNBprice < self.cul_profit(dic) * 0.01:
-            self.notify.info("BNBが不足のため買い足します", self.user)
+            info("BNBが不足のため買い足します", self.user)
             return True
         return False
 
@@ -178,7 +177,7 @@ class CalculationClass:
                 NumberOfTrades = [i[8] for i in klines]
                 return statistics.mean(NumberOfTrades)
             except Exception as e:
-                self.notify.critical(str(traceback.format_exc()))
+                critical(str(traceback.format_exc()))
                 time.sleep(1)
                 pass
 

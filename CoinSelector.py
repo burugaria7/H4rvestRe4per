@@ -1,16 +1,14 @@
 import BinanceController
 import time
 import Calculation
-import NotificationCenter
 from datetime import datetime
+from NotificationCenter import debug, info, warning, error, critical
 
 
 class CoinSelectorClass:
     def __init__(self):
-        self.binance_instance = BinanceController.BinanceControllerClass("",
-                                                                         "", 3)
+        self.binance_instance = BinanceController.BinanceControllerClass("", "", 3)
         self.calculation = Calculation.CalculationClass(self.binance_instance, 3)
-        self.notify = NotificationCenter.NotificationCenterClass("CoinSelectorClass")
         self.selected_coin = {}
         self.update_time = None
 
@@ -32,32 +30,32 @@ class CoinSelectorClass:
             for i in tmp:
                 try:
                     dic = self.calculation.cul_tec(i, 3)
-                    # self.notify.debug(str(i) + str(dic))
+                    # debug(str(i) + str(dic))
                     if dic['choice']:
                         choice.append(i)
                 except ConnectionResetError as e:
-                    self.notify.warning(e)
+                    warning(e)
                 except Exception as e:
-                    self.notify.critical(e)
+                    critical(e)
                 time.sleep(0.5)
 
             if choice:
-                self.notify.debug(str(choice))
+                debug(str(choice))
                 decision = [self.calculation.check_1minute(i) for i in choice if
                             float(self.calculation.check_1minute(i)) >= 20]
                 res = [i for i in choice if float(self.calculation.check_1minute(i)) >= 20]
                 if res:
-                    self.notify.debug(str(decision))
-                    self.notify.debug(str(res))
+                    debug(str(decision))
+                    debug(str(res))
                     dic = dict(zip(res, decision))
                     sorted_dic = sorted(dic.items(), key=lambda x: -x[1])
-                    self.notify.debug(str(sorted_dic))
+                    debug(str(sorted_dic))
                     self.selected_coin = sorted_dic
                     self.update_time = datetime.now()
                 else:
-                    self.notify.debug("[coin_selector]" + "15分足上昇コイン検出なし")
+                    debug("[coin_selector]" + "15分足上昇コイン検出なし")
             else:
-                self.notify.debug("[coin_selector]" + "15分足上昇コイン検出なし")
+                debug("[coin_selector]" + "15分足上昇コイン検出なし")
 
 if __name__ == "__main__":
     Cal = CoinSelectorClass()

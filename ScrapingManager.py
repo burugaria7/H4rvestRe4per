@@ -1,14 +1,14 @@
 import time
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
+from NotificationCenter import debug, info, warning, error, critical
 
-import NotificationCenter
 
 
 class ScrapingManagerClass:
 
     def __init__(self):
-        self.notify = NotificationCenter.NotificationCenterClass("ScrapingManagerClass")
+        pass
 
     def get_tradingview_trend(self, period, pair):
         trend = {
