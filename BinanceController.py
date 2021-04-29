@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import urllib.request as req
 import NotificationCenter
 import time
+import traceback
 
 
 class BinanceControllerClass:
@@ -52,7 +53,7 @@ class BinanceControllerClass:
                 self.notify.debug("[buy_all]"+"量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
-                self.notify.critical(e, self.user)
+                self.notify.critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 
@@ -67,7 +68,7 @@ class BinanceControllerClass:
                 self.notify.debug("[sell_all]" + "量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
-                self.notify.critical(e, self.user)
+                self.notify.critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 
@@ -79,7 +80,7 @@ class BinanceControllerClass:
                 print(order["side"])
                 print("量：" + order["origQty"])
             except Exception as e:
-                self.notify.critical(e, self.user)
+                self.notify.critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 
@@ -91,7 +92,7 @@ class BinanceControllerClass:
                 print(order["side"])
                 print("量：" + order["origQty"])
             except Exception as e:
-                self.notify.critical(e, self.user)
+                self.notify.critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
                 pass
 

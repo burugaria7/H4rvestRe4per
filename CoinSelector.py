@@ -58,3 +58,7 @@ class CoinSelectorClass:
                     self.notify.debug("[coin_selector]" + "15分足上昇コイン検出なし")
             else:
                 self.notify.debug("[coin_selector]" + "15分足上昇コイン検出なし")
+
+if __name__ == "__main__":
+    Cal = CoinSelectorClass()
+    print(Cal.calculation.check_1minute('BTCUSDT'))
