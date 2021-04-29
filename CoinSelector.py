@@ -47,7 +47,7 @@ class CoinSelectorClass:
                 if res:
                     debug(str(decision))
                     debug(str(res))
-                    dic = dict(zip(res, decision))
+                    dic = {key: val for key, val in zip(res, decision)}
                     sorted_dic = sorted(dic.items(), key=lambda x: -x[1])
                     debug(str(sorted_dic))
                     self.selected_coin = sorted_dic

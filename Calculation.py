@@ -124,7 +124,8 @@ class CalculationClass:
             'choice': False,
             'do_sell': False
         }
-        RSISoldLevel = 30
+        # RSISoldLevel = 30
+        RSISoldLevel = 45
         RSIBuyLevel = 70
 
         if period == 1:
