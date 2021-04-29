@@ -118,9 +118,8 @@ def critical(*args):
 
 
 if __name__ == '__main__':
-    notify = NotificationCenterClass("test")
     # notify.notify_to_discord("Hello", "ERROR", 3)
-    notify.debug("Hello")
+    info("Hello")
     # notify.info("Hello", 3)
     # notify.warning("Hello")
     # notify.error("Hello")
