@@ -30,22 +30,21 @@ class CoinSelectorClass:
             # up = 0
             # down = 0
             for i in tmp:
-                while True:
-                    try:
-                        dic = self.calculation.cul_tec(i, 3)
-                        # self.notify.debug(str(i) + str(dic))
-                        if dic['choice']:
-                            choice.append(i)
-                        break
-                    except Exception as e:
-                        self.notify.critical(e)
-                        break
+                try:
+                    dic = self.calculation.cul_tec(i, 3)
+                    # self.notify.debug(str(i) + str(dic))
+                    if dic['choice']:
+                        choice.append(i)
+                except ConnectionResetError as e:
+                    self.notify.warning(e)
+                except Exception as e:
+                    self.notify.critical(e)
                 time.sleep(0.5)
-
 
             if choice:
                 self.notify.debug(str(choice))
-                decision = [self.calculation.check_1minute(i) for i in choice if float(self.calculation.check_1minute(i)) >= 20]
+                decision = [self.calculation.check_1minute(i) for i in choice if
+                            float(self.calculation.check_1minute(i)) >= 20]
                 res = [i for i in choice if float(self.calculation.check_1minute(i)) >= 20]
                 if res:
                     self.notify.debug(str(decision))
@@ -56,7 +55,10 @@ class CoinSelectorClass:
                     self.selected_coin = sorted_dic
                     self.update_time = datetime.now()
                 else:
-                    self.notify.debug("[coin_selector]"+"15分足上昇コイン検出なし")
+                    self.notify.debug("[coin_selector]" + "15分足上昇コイン検出なし")
             else:
-                self.notify.debug("[coin_selector]"+"15分足上昇コイン検出なし")
+                self.notify.debug("[coin_selector]" + "15分足上昇コイン検出なし")
 
+if __name__ == "__main__":
+    Cal = CoinSelectorClass()
+    print(Cal.calculation.check_1minute('BTCUSDT'))

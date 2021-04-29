@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from binance.client import Client
 import statistics
+import traceback
 
 
 class CalculationClass:
@@ -173,11 +174,11 @@ class CalculationClass:
     def check_1minute(self, usecoin):
         while True:
             try:
-                klines = self.binance_instance.get_klines(symbol=usecoin, interval=Client.KLINE_INTERVAL_1MINUTE)
+                klines = self.binance_instance.client.get_klines(symbol=usecoin, interval=Client.KLINE_INTERVAL_1MINUTE)
                 NumberOfTrades = [i[8] for i in klines]
                 return statistics.mean(NumberOfTrades)
             except Exception as e:
-                self.notify.critical(e)
+                self.notify.critical(str(traceback.format_exc()))
                 time.sleep(1)
                 pass
 
@@ -221,4 +222,5 @@ class CalculationClass:
 
 
 if __name__ == "__main__":
-    print("")
+    Cal = CalculationClass(.3)
+    print(Cal.check_1minute('BTCUSDT'))
