@@ -11,6 +11,8 @@ import SheetController
 import CacheManager as Cache
 import CoinSelector
 from datetime import date, datetime, timedelta
+from NotificationCenter import debug, info, warning, error, critical
+
 
 
 class H4rvestRe4perClass:
@@ -34,7 +36,6 @@ class H4rvestRe4perClass:
         self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 3)
         self.Calculation_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 1)
         self.Calculation_instance_2 = Calculation.CalculationClass(self.binance_instance_2, 2)
-        self.notify = NotificationCenter.NotificationCenterClass("MainClass")
         self.scraping = ScrapingManager.ScrapingManagerClass()
         self.sheet = SheetController.SheetControllerClass()
         self.selector = CoinSelector.CoinSelectorClass()
@@ -48,11 +49,11 @@ class H4rvestRe4perClass:
         self.available_api1 = True
         self.available_api2 = True
 
-        self.notify.debug("[__init__]"+"Windowsの時刻を同期します")
+        debug("[__init__]"+"Windowsの時刻を同期します")
         subprocess.run(['sync_date_time.bat'], stdout=subprocess.PIPE)
         time.sleep(3)
 
-        self.notify.debug("[__init__]"+"coin_selectorスレッドを起動します")
+        debug("[__init__]"+"coin_selectorスレッドを起動します")
         thread_selector = threading.Thread(target=self.selector.coin_selector)
         thread_selector.start()
 
@@ -61,16 +62,16 @@ class H4rvestRe4perClass:
             Dic = Cache.get_position_cache(int(i))
             if Dic['status']:
                 # 未決済ポジションがあるため、売却スレッドを建てる
-                self.notify.debug("[__init__]"+"未決済ポジションがあるため、売却スレッドを建てます" + str(i))
+                debug("[__init__]"+"未決済ポジションがあるため、売却スレッドを建てます" + str(i))
                 thread_sell = threading.Thread(target=self.sell_bot, args=(i,))
                 thread_sell.start()
 
-        self.notify.debug("[__init__]"+"search_botスレッドを起動します")
+        debug("[__init__]"+"search_botスレッドを起動します")
         thread_search = threading.Thread(target=self.search_bot)
         thread_search.start()
 
     def search_bot(self):
-        self.notify.debug("[search_bot]起動！")
+        debug("[search_bot]起動！")
         while True:
             tmp = {}
             if self.observe_que:
@@ -79,9 +80,9 @@ class H4rvestRe4perClass:
                     dicc = self.Calculation_instance.cul_tec(i, 3)
                     if j < datetime.now() or dicc['detect_descent']:
                         if j < datetime.now():
-                            self.notify.debug("[search_bot]"+str(i)+"を監視から外します(期限切れ)")
+                            debug("[search_bot]"+str(i)+"を監視から外します(期限切れ)")
                         elif dicc['detect_descent']:
-                            self.notify.debug("[search_bot]"+str(i)+"を監視から外します(下降トレンド)")
+                            debug("[search_bot]"+str(i)+"を監視から外します(下降トレンド)")
                     else:
                         tmp[i] = j
             self.observe_que = tmp
@@ -94,12 +95,12 @@ class H4rvestRe4perClass:
                         break
                     dicc = self.Calculation_instance.cul_tec(i, 3)
                     if dicc['detect_descent']:
-                        self.notify.debug("[search_bot]"+str(i) + "を監視から外します(下降トレンド)")
+                        debug("[search_bot]"+str(i) + "を監視から外します(下降トレンド)")
                     elif self.selector.get_update_time() < datetime.now():
-                        self.notify.debug("[search_bot]"+str(i) + "を監視から外します(期限切れ)")
+                        debug("[search_bot]"+str(i) + "を監視から外します(期限切れ)")
                     elif i not in self.observe_que:
-                        self.notify.debug("[search_bot]"+str(i) + "を監視キューに追加しスレッドを起動")
-                        self.notify.debug(str(self.observe_que))
+                        debug("[search_bot]"+str(i) + "を監視キューに追加しスレッドを起動")
+                        debug(str(self.observe_que))
                         self.observe_que[i] = datetime.now() + self.OBSERVE_TIME
                         thread_observer = threading.Thread(target=self.coin_observer, args=(i,))
                         thread_observer.start()
@@ -109,10 +110,10 @@ class H4rvestRe4perClass:
             time.sleep(1)
 
     def coin_observer(self, pair):
-        self.notify.debug("[coin_observer, pair= " + str(pair) + "]起動！")
+        debug("[coin_observer, pair= " + str(pair) + "]起動！")
         while self.available_api1 or self.available_api2 and pair in self.observe_que:
             Tec = self.Calculation_instance.cul_tec(pair, 1)
-            # self.notify.debug("[coin_observer]"+str(Tec))
+            # debug("[coin_observer]"+str(Tec))
             dict = {
                 'user': 0,
                 'status': False,
@@ -126,7 +127,7 @@ class H4rvestRe4perClass:
                 'mode': 0,
             }
             if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1, pair) and self.scraping.cul_trend_from_tradingview(2, pair):
-                self.notify.debug("[coin_observer]"+"買い処理をします")
+                debug("[coin_observer]"+"買い処理をします")
                 if self.available_api1:
                     dict['amount'] = '6666666'
                     # dict['amount'] = self.binance_instance_1.buy_all(pair)
@@ -137,9 +138,9 @@ class H4rvestRe4perClass:
                     Cache.set_position_cache(1, dict)
                     self.available_api1 = False
                     del self.observe_que[pair]
-                    self.notify.info("買いました", 1)
-                    self.notify.info(str(dict), 1)
-                    self.notify.debug("[coin_observer]"+"買い処理成功！（１）")
+                    info("買いました", 1)
+                    info(str(dict), 1)
+                    debug("[coin_observer]"+"買い処理成功！（１）")
                     self.sell_bot(1)
                 elif self.available_api2:
                     dict['amount'] = '6666666'
@@ -151,30 +152,30 @@ class H4rvestRe4perClass:
                     Cache.set_position_cache(2, dict)
                     self.available_api2 = False
                     del self.observe_que[pair]
-                    self.notify.info("買いました", 2)
-                    self.notify.info(str(dict), 2)
-                    self.notify.debug("[coin_observer]"+"買い処理成功！（２）")
+                    info("買いました", 2)
+                    info(str(dict), 2)
+                    debug("[coin_observer]"+"買い処理成功！（２）")
                     self.sell_bot(2)
                 return
             time.sleep(10)
 
     def sell_bot(self, user):
-        self.notify.debug("[sell_bot, user= " + str(user) + "]起動！")
+        debug("[sell_bot, user= " + str(user) + "]起動！")
         while not self.available_api1 or not self.available_api2:
             dict = Cache.get_position_cache(user)
             sell_algorithm = self.Calculation_instance.sell_algorithm(dict)
             Tec = self.Calculation_instance.cul_tec(dict['pair'], 1)
             if Tec['do_sell'] or sell_algorithm['win'] or sell_algorithm['loss']:
-                self.notify.debug("[sell_bot]" + "売り処理をします")
+                debug("[sell_bot]" + "売り処理をします")
                 if user == 1:
                     dict['sell_coin'] = self.binance_instance_1.get_price(dict['pair'])
                     dict['status'] = False
                     dict['sell_time'] = datetime.now()
                     dict['profit'] = self.binance_instance_1.get_balance()
                     # self.binance_instance_1.sell_all(dict['pair'])
-                    self.notify.info("売りました", 1)
-                    self.notify.info(str(dict), 1)
-                    self.notify.debug("[sell_bot]" + "売り処理成功！（１）")
+                    info("売りました", 1)
+                    info(str(dict), 1)
+                    debug("[sell_bot]" + "売り処理成功！（１）")
                     self.available_api1 = True
                 elif user == 2:
                     dict['sell_coin'] = self.binance_instance_2.get_price(dict['pair'])
@@ -182,9 +183,9 @@ class H4rvestRe4perClass:
                     dict['sell_time'] = datetime.now()
                     dict['profit'] = self.binance_instance_2.get_balance()
                     # self.binance_instance_2.sell_all(dict['pair'])
-                    self.notify.info("売りました", 2)
-                    self.notify.info(str(dict), 2)
-                    self.notify.debug("[sell_bot]" + "売り処理成功！（２）")
+                    info("売りました", 2)
+                    info(str(dict), 2)
+                    debug("[sell_bot]" + "売り処理成功！（２）")
                     self.available_api2 = True
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
                 return
