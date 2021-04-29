@@ -19,7 +19,7 @@ class BinanceControllerClass:
     def get_price(self, coin):
         info = self.client.get_recent_trades(symbol=coin)
         coin = info[-1]['price']
-        print("現在の価格:", coin)
+        debug("[BinanceControllerClass]現在の価格:" + str(coin))
         return coin
 
     def get_ticker(self):
@@ -47,9 +47,9 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic['USDT'] / float(self.get_price(coin)))
                 order = self.client.order_market_buy(symbol=coin, quantity=qat)
-                debug("[buy_all]"+order["symbol"])
-                debug("[buy_all]"+order["side"])
-                debug("[buy_all]"+"量：" + order["origQty"])
+                debug("[BinanceControllerClass]"+order["symbol"])
+                debug("[BinanceControllerClass]"+order["side"])
+                debug("[BinanceControllerClass]"+"量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
                 critical(str(traceback.format_exc()), self.user)
@@ -62,9 +62,9 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic[coin.replace('USDT', '')])
                 order = self.client.order_market_sell(symbol=coin, quantity=qat)
-                debug("[sell_all]" + order["symbol"])
-                debug("[sell_all]" + order["side"])
-                debug("[sell_all]" + "量：" + order["origQty"])
+                debug("[BinanceControllerClass]" + order["symbol"])
+                debug("[BinanceControllerClass]" + order["side"])
+                debug("[BinanceControllerClass]" + "量：" + order["origQty"])
                 return order["origQty"]
             except Exception as e:
                 critical(str(traceback.format_exc()), self.user)
