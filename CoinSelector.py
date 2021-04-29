@@ -49,9 +49,10 @@ class CoinSelectorClass:
                     debug(str(res))
                     dic = {key: val for key, val in zip(res, decision)}
                     sorted_dic = sorted(dic.items(), key=lambda x: -x[1])
-                    debug(str(sorted_dic))
-                    self.selected_coin = sorted_dic
                     self.update_time = datetime.now()
+                    self.selected_coin = dict(sorted_dic)
+                    debug(str(self.selected_coin))
+                    debug(str(self.update_time))
                 else:
                     debug("[coin_selector]" + "15分足上昇コイン検出なし")
             else:
@@ -59,4 +60,5 @@ class CoinSelectorClass:
 
 if __name__ == "__main__":
     Cal = CoinSelectorClass()
-    print(Cal.calculation.check_1minute('BTCUSDT'))
+    dic = {'user': 2, 'status': True, 'pair': 'UNIUSDT', 'amount': '6666666', 'buy_time': datetime(2021, 4, 29, 19, 4, 18, 337972), 'sell_time': None, 'buy_coin': '42.67300000', 'sell_coin': 0, 'profit': 0, 'mode': 0}
+    print(Cal.calculation.sell_algorithm(dic))

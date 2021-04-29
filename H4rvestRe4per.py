@@ -13,7 +13,6 @@ from datetime import date, datetime, timedelta
 from NotificationCenter import debug, info, warning, error, critical
 
 
-
 class H4rvestRe4perClass:
     position = False
 
@@ -48,11 +47,11 @@ class H4rvestRe4perClass:
         self.available_api1 = True
         self.available_api2 = True
 
-        debug("[__init__]"+"Windowsの時刻を同期します")
+        debug("[__init__]" + "Windowsの時刻を同期します")
         subprocess.run(['sync_date_time.bat'], stdout=subprocess.PIPE)
         time.sleep(3)
 
-        debug("[__init__]"+"coin_selectorスレッドを起動します")
+        debug("[__init__]" + "coin_selectorスレッドを起動します")
         thread_selector = threading.Thread(target=self.selector.coin_selector)
         thread_selector.start()
 
@@ -61,11 +60,11 @@ class H4rvestRe4perClass:
             Dic = Cache.get_position_cache(int(i))
             if Dic['status']:
                 # 未決済ポジションがあるため、売却スレッドを建てる
-                debug("[__init__]"+"未決済ポジションがあるため、売却スレッドを建てます" + str(i))
+                debug("[__init__]" + "未決済ポジションがあるため、売却スレッドを建てます" + str(i))
                 thread_sell = threading.Thread(target=self.sell_bot, args=(i,))
                 thread_sell.start()
 
-        debug("[__init__]"+"search_botスレッドを起動します")
+        debug("[__init__]" + "search_botスレッドを起動します")
         thread_search = threading.Thread(target=self.search_bot)
         thread_search.start()
 
@@ -75,13 +74,13 @@ class H4rvestRe4perClass:
             tmp = {}
             if self.observe_que:
                 # self.observe_que内の個数が変わってしまうためにitem()で回避している
-                for i, j in self.observe_que.items():
+                for i, j in list(self.observe_que.items()):
                     dicc = self.Calculation_instance.cul_tec(i, 3)
                     if j < datetime.now() or dicc['detect_descent']:
                         if j < datetime.now():
-                            debug("[search_bot]"+str(i)+"を監視から外します(期限切れ)")
+                            debug("[search_bot]" + str(i) + "を監視から外します(期限切れ)")
                         elif dicc['detect_descent']:
-                            debug("[search_bot]"+str(i)+"を監視から外します(下降トレンド)")
+                            debug("[search_bot]" + str(i) + "を監視から外します(下降トレンド)")
                     else:
                         tmp[i] = j
             self.observe_que = tmp
@@ -94,11 +93,11 @@ class H4rvestRe4perClass:
                         break
                     dicc = self.Calculation_instance.cul_tec(i, 3)
                     if dicc['detect_descent']:
-                        debug("[search_bot]"+str(i) + "を監視から外します(下降トレンド)")
-                    elif self.selector.get_update_time() < datetime.now():
-                        debug("[search_bot]"+str(i) + "を監視から外します(期限切れ)")
+                        debug("[search_bot]" + str(i) + "を監視から外します(下降トレンド)")
+                    elif self.selector.get_update_time() + self.OBSERVE_TIME < datetime.now():
+                        debug("[search_bot]" + str(i) + "を監視から外します(期限切れ)")
                     elif i not in self.observe_que:
-                        debug("[search_bot]"+str(i) + "を監視キューに追加しスレッドを起動")
+                        debug("[search_bot]" + str(i) + "を監視キューに追加しスレッドを起動")
                         debug(str(self.observe_que))
                         self.observe_que[i] = datetime.now() + self.OBSERVE_TIME
                         thread_observer = threading.Thread(target=self.coin_observer, args=(i,))
@@ -125,8 +124,10 @@ class H4rvestRe4perClass:
                 'profit': 0,
                 'mode': 0,
             }
-            if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1, pair) and self.scraping.cul_trend_from_tradingview(2, pair):
-                debug("[coin_observer]"+"買い処理をします")
+            if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1,
+                                                                          pair) and self.scraping.cul_trend_from_tradingview(
+                    2, pair):
+                debug("[coin_observer]" + "買い処理をします")
                 if self.available_api1:
                     dict['amount'] = '6666666'
                     # dict['amount'] = self.binance_instance_1.buy_all(pair)
@@ -139,7 +140,7 @@ class H4rvestRe4perClass:
                     del self.observe_que[pair]
                     info("買いました", 1)
                     info(str(dict), 1)
-                    debug("[coin_observer]"+"買い処理成功！（１）")
+                    debug("[coin_observer]" + "買い処理成功！（１）")
                     self.sell_bot(1)
                 elif self.available_api2:
                     dict['amount'] = '6666666'
@@ -153,7 +154,7 @@ class H4rvestRe4perClass:
                     del self.observe_que[pair]
                     info("買いました", 2)
                     info(str(dict), 2)
-                    debug("[coin_observer]"+"買い処理成功！（２）")
+                    debug("[coin_observer]" + "買い処理成功！（２）")
                     self.sell_bot(2)
                 return
             time.sleep(10)

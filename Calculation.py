@@ -214,10 +214,13 @@ class CalculationClass:
     # 売るためのalgorithm計算
     def sell_algorithm(self, dict):
         dict['price'] = self.binance_instance.get_price(dict['pair'])
-        if float(dict['buycoin']) * 0.97 >= float(dict['price']):
+        if float(dict['buy_coin']) * 0.97 >= float(dict['price']):
             dict['loss'] = True
-        elif float(dict['buycoin']) * 1.03 <= float(dict['price']):
+        elif float(dict['buy_coin']) * 1.03 <= float(dict['price']):
             dict['win'] = True
+        else:
+            dict['win'] = False
+            dict['loss'] = False
         return dict
 
 

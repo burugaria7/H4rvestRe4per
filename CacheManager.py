@@ -74,13 +74,14 @@ if __name__ == "__main__":
         'wasOversold': False,
         'crossoverbuy': False,
         'crossoversold': False,
-        'buycoin': 0,
-        'sellcoin': 0,
+        'buy_coin': 0,
+        'sell_coin': 0,
         'mode': 0,
     }
     data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
             'BATUSDT': datetime.now() + timedelta(hours=1)
             }
-    set_position_cache(1, dict)
-    set_monitoring_currency_cache(data)
+    # set_position_cache(1, dict)
+    # set_monitoring_currency_cache(data)
     print(get_position_cache(1))
+    print(get_position_cache(2))
