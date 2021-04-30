@@ -113,7 +113,7 @@ class H4rvestRe4perClass:
 
     def coin_observer(self, pair):
         debug("[coin_observer, pair= " + str(pair) + "]起動！")
-        while self.available_api1 or self.available_api2 and pair in self.observe_que:
+        while (self.available_api1 or self.available_api2) and pair in self.observe_que:
             Tec = self.Calculation_instance.cul_tec(pair, 1)
             # debug("[coin_observer]"+str(Tec))
             dict = {

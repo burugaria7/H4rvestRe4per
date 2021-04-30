@@ -177,6 +177,8 @@ class CalculationClass:
                 klines = self.binance_instance.client.get_klines(symbol=usecoin, interval=Client.KLINE_INTERVAL_1MINUTE)
                 NumberOfTrades = [i[8] for i in klines]
                 return statistics.mean(NumberOfTrades)
+            except ConnectionResetError as e:
+                warning(str(e))
             except Exception as e:
                 critical(str(traceback.format_exc()))
                 time.sleep(1)

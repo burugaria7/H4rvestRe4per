@@ -27,10 +27,11 @@ class BinanceControllerClass:
             try:
                 prices = self.client.get_all_tickers()
                 return prices
+            except ConnectionResetError as e:
+                warning(str(e))
             except Exception as e:
                 debug(e)
                 time.sleep(1)
-                pass
 
     def get_balance(self):
         bi_balance = self.CCXT_binance.fetchBalance()
@@ -51,10 +52,11 @@ class BinanceControllerClass:
                 debug("[BinanceControllerClass]"+order["side"])
                 debug("[BinanceControllerClass]"+"量：" + order["origQty"])
                 return order["origQty"]
+            except ConnectionResetError as e:
+                warning(str(e))
             except Exception as e:
                 critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
-                pass
 
     def sell_all(self, coin):
         while True:
@@ -66,10 +68,11 @@ class BinanceControllerClass:
                 debug("[BinanceControllerClass]" + order["side"])
                 debug("[BinanceControllerClass]" + "量：" + order["origQty"])
                 return order["origQty"]
+            except ConnectionResetError as e:
+                warning(str(e))
             except Exception as e:
                 critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
-                pass
 
     def buy_piece(self, coin, qat):
         while True:
@@ -78,6 +81,8 @@ class BinanceControllerClass:
                 print(order["symbol"])
                 print(order["side"])
                 print("量：" + order["origQty"])
+            except ConnectionResetError as e:
+                warning(str(e))
             except Exception as e:
                 critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
@@ -90,6 +95,8 @@ class BinanceControllerClass:
                 print(order["symbol"])
                 print(order["side"])
                 print("量：" + order["origQty"])
+            except ConnectionResetError as e:
+                warning(str(e))
             except Exception as e:
                 critical(str(traceback.format_exc()), self.user)
                 time.sleep(1)
