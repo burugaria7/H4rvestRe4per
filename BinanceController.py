@@ -17,10 +17,17 @@ class BinanceControllerClass:
         self.CCXT_binance = ccxt.binance({'apiKey': str(api_key), 'secret': str(api_secret), })
 
     def get_price(self, coin):
-        info = self.client.get_recent_trades(symbol=coin)
-        coin = info[-1]['price']
-        # debug("[BinanceControllerClass]現在の価格:" + str(coin))
-        return coin
+        while True:
+            try:
+                info = self.client.get_recent_trades(symbol=coin)
+                coin = info[-1]['price']
+                # debug("[BinanceControllerClass]現在の価格:" + str(coin))
+                return coin
+            except ConnectionResetError as e:
+                warning(str(e))
+            except Exception as e:
+                debug(e)
+                time.sleep(1)
 
     def get_ticker(self):
         while True:
@@ -34,13 +41,20 @@ class BinanceControllerClass:
                 time.sleep(1)
 
     def get_balance(self):
-        bi_balance = self.CCXT_binance.fetchBalance()
-        dic = bi_balance['total']
-        tmp = {}
-        for key, value in dic.items():
-            if value != 0:
-                tmp[key] = value
-        return tmp
+        while True:
+            try:
+                bi_balance = self.CCXT_binance.fetchBalance()
+                dic = bi_balance['total']
+                tmp = {}
+                for key, value in dic.items():
+                    if value != 0:
+                        tmp[key] = value
+                return tmp
+            except ConnectionResetError as e:
+                warning(str(e))
+            except Exception as e:
+                debug(e)
+                time.sleep(1)
 
     def buy_all(self, coin):
         while True:
@@ -48,9 +62,9 @@ class BinanceControllerClass:
                 dic = self.get_balance()
                 qat = int(dic['USDT'] / float(self.get_price(coin)))
                 order = self.client.order_market_buy(symbol=coin, quantity=qat)
-                debug("[BinanceControllerClass]"+order["symbol"])
-                debug("[BinanceControllerClass]"+order["side"])
-                debug("[BinanceControllerClass]"+"量：" + order["origQty"])
+                debug("[BinanceControllerClass]" + order["symbol"])
+                debug("[BinanceControllerClass]" + order["side"])
+                debug("[BinanceControllerClass]" + "量：" + order["origQty"])
                 return order["origQty"]
             except ConnectionResetError as e:
                 warning(str(e))
