@@ -25,7 +25,8 @@ def set_monitoring_currency_cache(data):
 # 取引してないときはNULL？
 # userは1or2
 def get_position_cache(user):
-    if user != 1 and user != 2:
+    user = str(user)
+    if user != '1' and user != '2':
         return
     try:
         path = 'save/position_cache' + str(user) + '.bin'
@@ -51,7 +52,8 @@ def get_position_cache(user):
 
 
 def set_position_cache(user, data):
-    if user != 1 and user != 2:
+    user = str(user)
+    if user != '1' and user != '2':
         return
     path = 'save/position_cache' + str(user) + '.bin'
     with open(path, 'wb') as web:

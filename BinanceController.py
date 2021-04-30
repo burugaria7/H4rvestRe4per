@@ -19,7 +19,7 @@ class BinanceControllerClass:
     def get_price(self, coin):
         info = self.client.get_recent_trades(symbol=coin)
         coin = info[-1]['price']
-        debug("[BinanceControllerClass]現在の価格:" + str(coin))
+        # debug("[BinanceControllerClass]現在の価格:" + str(coin))
         return coin
 
     def get_ticker(self):

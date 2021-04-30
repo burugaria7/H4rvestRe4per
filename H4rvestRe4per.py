@@ -57,8 +57,12 @@ class H4rvestRe4perClass:
 
         # ポジションを持っていたら売却スレッドをたてる
         for i in self.account:
-            Dic = Cache.get_position_cache(int(i))
+            Dic = Cache.get_position_cache(i)
             if Dic['status']:
+                if i == '1':
+                    self.available_api1 = False
+                elif i == '2':
+                    self.available_api2 = False
                 # 未決済ポジションがあるため、売却スレッドを建てる
                 debug("[__init__]" + "未決済ポジションがあるため、売却スレッドを建てます" + str(i))
                 thread_sell = threading.Thread(target=self.sell_bot, args=(i,))

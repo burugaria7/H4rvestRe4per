@@ -60,5 +60,5 @@ class CoinSelectorClass:
 
 if __name__ == "__main__":
     Cal = CoinSelectorClass()
-    dic = {'user': 2, 'status': True, 'pair': 'UNIUSDT', 'amount': '6666666', 'buy_time': datetime(2021, 4, 29, 19, 4, 18, 337972), 'sell_time': None, 'buy_coin': '42.67300000', 'sell_coin': 0, 'profit': 0, 'mode': 0}
+    dic = {'user': 2, 'status': True, 'pair': 'BTCSTUSDT', 'amount': '6666666', 'buy_time': datetime(2021, 4, 29, 19, 4, 18, 337972), 'sell_time': None, 'buy_coin': '42.67300000', 'sell_coin': 0, 'profit': 0, 'mode': 0}
     print(Cal.calculation.sell_algorithm(dic))
