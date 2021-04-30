@@ -1,6 +1,4 @@
 from discord_webhook import DiscordWebhook
-import NotificationCenter
-
 
 class DiscordBotClass:
     def __init__(self, url):
