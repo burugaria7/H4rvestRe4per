@@ -1,5 +1,4 @@
 from discord_webhook import DiscordWebhook
-import NotificationCenter
 
 
 class DiscordBotClass:
