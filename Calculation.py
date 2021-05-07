@@ -22,8 +22,8 @@ class CalculationClass:
         start = dic['buy_time'].strftime("%Y/%m/%d %H:%M")
         end = dic['sell_time'].strftime("%Y/%m/%d %H:%M")
         max_min = {
-            'coin': dic['buy_coin'],
-            'price': dic['price'],
+            'coin': dic['pair'],
+            'price': dic['sell_coin'],
             'start': datetime.strptime(start, '%Y/%m/%d %H:%M'),
             'end': datetime.strptime(end, '%Y/%m/%d %H:%M')
         }
@@ -177,12 +177,8 @@ class CalculationClass:
                 klines = self.binance_instance.client.get_klines(symbol=usecoin, interval=Client.KLINE_INTERVAL_1MINUTE)
                 NumberOfTrades = [i[8] for i in klines]
                 return statistics.mean(NumberOfTrades)
-            except ConnectionResetError as e:
-                warning(str(e))
             except Exception as e:
-                critical(str(traceback.format_exc()))
-                time.sleep(1)
-                pass
+                warning(str(e))
 
     def prepare_log_data_set(self, data):
         raw_data = []
@@ -217,9 +213,11 @@ class CalculationClass:
     def sell_algorithm(self, dict):
         dict['price'] = self.binance_instance.get_price(dict['pair'])
         if float(dict['buy_coin']) * 0.97 >= float(dict['price']):
+            dict['win'] = False
             dict['loss'] = True
         elif float(dict['buy_coin']) * 1.03 <= float(dict['price']):
             dict['win'] = True
+            dict['loss'] = False
         else:
             dict['win'] = False
             dict['loss'] = False

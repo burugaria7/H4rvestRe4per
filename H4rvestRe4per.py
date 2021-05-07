@@ -109,7 +109,7 @@ class H4rvestRe4perClass:
                         # 　監視スレッド起動
                     time.sleep(0.5)
                 Cache.set_monitoring_currency_cache(self.observe_que)
-            time.sleep(1)
+            time.sleep(5)
 
     def coin_observer(self, pair):
         debug("[coin_observer, pair= " + str(pair) + "]起動！")
@@ -181,6 +181,7 @@ class H4rvestRe4perClass:
                     info(str(dict), 1)
                     debug("[sell_bot]" + "売り処理成功！（１）")
                     self.available_api1 = True
+                    self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
                 elif user == 2:
                     dict['sell_coin'] = self.binance_instance_2.get_price(dict['pair'])
                     dict['status'] = False
@@ -191,7 +192,7 @@ class H4rvestRe4perClass:
                     info(str(dict), 2)
                     debug("[sell_bot]" + "売り処理成功！（２）")
                     self.available_api2 = True
-                self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
+                    self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
                 return
             time.sleep(10)
 

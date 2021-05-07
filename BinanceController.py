@@ -23,10 +23,8 @@ class BinanceControllerClass:
                 coin = info[-1]['price']
                 # debug("[BinanceControllerClass]現在の価格:" + str(coin))
                 return coin
-            except ConnectionResetError as e:
-                warning(str(e))
             except Exception as e:
-                debug(e)
+                warning(str(e))
                 time.sleep(1)
 
     def get_ticker(self):
@@ -34,10 +32,8 @@ class BinanceControllerClass:
             try:
                 prices = self.client.get_all_tickers()
                 return prices
-            except ConnectionResetError as e:
-                warning(str(e))
             except Exception as e:
-                debug(e)
+                warning(str(e))
                 time.sleep(1)
 
     def get_balance(self):
@@ -50,10 +46,8 @@ class BinanceControllerClass:
                     if value != 0:
                         tmp[key] = value
                 return tmp
-            except ConnectionResetError as e:
-                warning(str(e))
             except Exception as e:
-                debug(e)
+                warning(str(e))
                 time.sleep(1)
 
     def buy_all(self, coin):
@@ -150,3 +144,4 @@ class BinanceControllerClass:
         values = soup.select_one("#USDJPY_detail_bid").findAll(text=True)
         current_value = float(''.join(values))
         return current_value
+
