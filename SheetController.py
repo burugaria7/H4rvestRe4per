@@ -19,10 +19,10 @@ class SheetControllerClass:
         credentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, scope)
         gc = gspread.authorize(credentials)
         sp = gc.open_by_key(sheet_id)
-        log1_sp = sp.worksheet('決済履歴')
-        log2_sp = sp.worksheet('決済履歴2')
-        pair_sp = sp.worksheet('自動通貨選択')
-        test_sp = sp.worksheet('テスト用')
+        self.log1_sp = sp.worksheet('決済履歴')
+        self.log2_sp = sp.worksheet('決済履歴2')
+        self.pair_sp = sp.worksheet('自動通貨選択')
+        self.test_sp = sp.worksheet('テスト用')
 
     # この関数もキャッシュ全部ファイル化することで使わんくしたい
     def get_buy_date(self, user):
@@ -75,6 +75,7 @@ class SheetControllerClass:
         self.log1_sp.insert_row(raw_data, index=8, value_input_option='RAW')
 
     def post_log(self, user, data):
+        print(data)
         if user == 1:
             self.log1_sp.insert_row(data, index=8, value_input_option='RAW')
         elif user == 2:

@@ -40,7 +40,7 @@ class CoinSelectorClass:
                 time.sleep(0.5)
 
             if choice:
-                debug(str(choice))
+                # debug(str(choice))
                 decision = [self.calculation.check_1minute(i) for i in choice if
                             float(self.calculation.check_1minute(i)) >= 20]
                 res = [i for i in choice if float(self.calculation.check_1minute(i)) >= 20]

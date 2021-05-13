@@ -24,7 +24,7 @@ class BinanceControllerClass:
                 # debug("[BinanceControllerClass]現在の価格:" + str(coin))
                 return coin
             except Exception as e:
-                warning(str(e))
+                debug(e)
                 time.sleep(1)
 
     def get_ticker(self):
@@ -33,7 +33,7 @@ class BinanceControllerClass:
                 prices = self.client.get_all_tickers()
                 return prices
             except Exception as e:
-                warning(str(e))
+                debug(e)
                 time.sleep(1)
 
     def get_balance(self):
@@ -125,7 +125,7 @@ class BinanceControllerClass:
         return openP, openT
 
     def coin_raw_1min(self, coin):
-        klines = self.client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "1 day ago UTC")
+        klines = self.client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "10 day ago UTC")
         return klines
 
     def deta_cul(self, servertime):  # サーバータイムを日付に変換する
