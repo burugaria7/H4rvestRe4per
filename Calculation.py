@@ -178,7 +178,7 @@ class CalculationClass:
                 NumberOfTrades = [i[8] for i in klines]
                 return statistics.mean(NumberOfTrades)
             except Exception as e:
-                warning(str(e))
+                debug(str(e))
 
     def prepare_log_data_set(self, data):
         raw_data = []
@@ -192,14 +192,15 @@ class CalculationClass:
 
         raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
         raw_data.extend(
-            [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'], data['mode']])
+            [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'] * self.binance_instance.get_USDJPY(), data['mode']])
 
         max_and_min = self.do_maxmin(data)
-        if max_and_min[2] <= max_and_min[3]:
-            percent = (float(max_and_min[3]) / float(max_and_min[2]) - 1)
+        print(max_and_min)
+        if data['buy_coin'] <= data['sell_coin']:
+            percent = (float(data['sell_coin']) / float(data['buy_coin']) - 1)
             raw_data.append(percent)
         else:
-            percent = (1 - float(max_and_min[3]) / float(max_and_min[3]))
+            percent = (1 - float(data['buy_coin']) / float(data['sell_coin']))
             raw_data.append(percent)
         for j in max_and_min:
             if isinstance(j, type(max_and_min[-1])):

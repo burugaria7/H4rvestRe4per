@@ -24,7 +24,7 @@ class BinanceControllerClass:
                 # debug("[BinanceControllerClass]現在の価格:" + str(coin))
                 return coin
             except Exception as e:
-                debug(e)
+                debug(str(e))
                 time.sleep(1)
 
     def get_ticker(self):
@@ -33,7 +33,7 @@ class BinanceControllerClass:
                 prices = self.client.get_all_tickers()
                 return prices
             except Exception as e:
-                debug(e)
+                debug(str(e))
                 time.sleep(1)
 
     def get_balance(self):
@@ -47,7 +47,7 @@ class BinanceControllerClass:
                         tmp[key] = value
                 return tmp
             except Exception as e:
-                warning(str(e))
+                debug(str(e))
                 time.sleep(1)
 
     def buy_all(self, coin):

@@ -39,41 +39,6 @@ class SheetControllerClass:
         buy_date.append(str(buy_date_split[1]))
         return buy_date
 
-    def send_log(self, user, data):
-
-        if user != 1 and user != 2:
-            return
-
-        raw_data = self.get_buy_date(user)
-
-        # sell_date_insert
-        sell_date = str(data[0])
-        sell_date_list = sell_date.split(' ')
-        raw_data.append(str(sell_date_list[0]))
-        raw_data.append(str(sell_date_list[1]))
-
-        # max_minの計算を修正する↓
-        # max min は外で計算してdataで渡すのが良さそう
-        k = 0
-        for i in data:
-            if k > 0:
-                raw_data.append(i)
-            k += 1
-
-        if data[2] <= data[3]:
-            percent = (float(data[3]) / float(data[2]) - 1)
-            raw_data.append(percent)
-        else:
-            percent = (1 - float(data[2]) / float(data[3]))
-            raw_data.append(percent)
-        for j in max_and_min:
-            if isinstance(j, type(max_and_min[-1])):
-                raw_data.append(str(j))
-            else:
-                raw_data.append(j)
-
-        self.log1_sp.insert_row(raw_data, index=8, value_input_option='RAW')
-
     def post_log(self, user, data):
         print(data)
         if user == 1:
