@@ -122,9 +122,11 @@ class H4rvestRe4perClass:
                 'profit': 0,
                 'mode': 0,
             }
-            if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1,
-                                                                          pair) and self.scraping.cul_trend_from_tradingview(
-                2, pair):
+            # if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1,
+            #                                                               pair) and self.scraping.cul_trend_from_tradingview(
+            #     2, pair):
+            # if Tec['choice']:
+            if Tec['crossover_buy']:
                 debug("[coin_observer]" + "買い処理をします")
                 if self.available_api1:
                     dict['amount'] = '6666666'
