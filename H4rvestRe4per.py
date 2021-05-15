@@ -9,6 +9,7 @@ import threading
 import SheetController
 import CacheManager as Cache
 import CoinSelector
+import DiscordStatus
 from datetime import date, datetime, timedelta
 from NotificationCenter import debug, info, warning, error, critical
 
@@ -40,6 +41,8 @@ class H4rvestRe4perClass:
         # Falseで初期化することでそのAPIを使わない設定にできるよ☆
         self.available_api1 = True
 
+        self.discord_status_instance = DiscordStatus.DiscordStatusClass()
+
         print(self.binance_instance_1.get_USDJPY())
         print(self.binance_instance_1.get_balance())
         print(self.Calculation_instance.cul_profit(
@@ -59,7 +62,9 @@ class H4rvestRe4perClass:
             self.available_api1 = False
             # 未決済ポジションがあるため、売却スレッドを建てる
             debug("[__init__]" + "未決済ポジションがあるため、売却スレッドを建てます" + str(1))
+            self.discord_status_instance.set_status(Dic['pair'])
             thread_sell = threading.Thread(target=self.sell_bot, args=(1,))
+            self.discord_status_instance.set_status("Observing")
             thread_sell.start()
 
         debug("[__init__]" + "search_botスレッドを起動します")
@@ -141,6 +146,7 @@ class H4rvestRe4perClass:
                     info("買いました", 2)
                     info(str(dict), 2)
                     debug("[coin_observer]" + "買い処理成功！（２）")
+                    self.discord_status_instance.set_status(pair)
                     self.sell_bot(2)
                 return
             time.sleep(10)
@@ -180,6 +186,7 @@ class H4rvestRe4perClass:
                 self.available_api1 = True
                 Cache.set_position_cache(2, dict)
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
+                self.discord_status_instance.set_status("Observing")
                 return
             time.sleep(5)
 
