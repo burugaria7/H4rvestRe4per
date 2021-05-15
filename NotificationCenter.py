@@ -46,6 +46,10 @@ log_file = logging.FileHandler(class_name)
 logger.addHandler(log_file)
 
 
+def set_status(self, status):
+    discord_account_1.set_status(status)
+
+
 def notify_to_line(msg, level, account_no):
     level = "[" + level + "]"
     msg = level + "\n" + msg
