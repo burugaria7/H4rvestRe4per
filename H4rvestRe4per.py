@@ -69,6 +69,7 @@ class H4rvestRe4perClass:
 
         debug("[__init__]" + "search_botスレッドを起動します")
         thread_search = threading.Thread(target=self.search_bot)
+        self.discord_status_instance.set_status("Searching")
         thread_search.start()
 
     def search_bot(self):
