@@ -7,6 +7,9 @@ from pydrive.auth import GoogleAuth
 
 import os
 
+drive_id = "0XXXXXXXXXXXXXVA"  # confirm from url
+folder_id = "1_VpYpXiISNr-fFEJVfGa0UTTwFoXVh1K"  # confirm from url
+
 # Googleサービスを認証
 gauth = GoogleAuth()
 
@@ -35,9 +38,17 @@ drive = GoogleDrive(gauth)
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
     try:
-        file_id = drive.ListFile({'q': 'title = "monitoring_currency_cache.bin"'}).GetList()[0]['id']
-        f = drive.CreateFile({'id': file_id})
-        f.GetContentFile('save/monitoring_currency_cache.bin')
+        query = "'{}' in parents and trashed=false".format(folder_id)
+
+        for file_list in drive.ListFile({'q': query}):
+            for file in file_list:
+                if file['title'] == 'monitoring_currency_cache.bin':
+                    file.GetContentFile('save/monitoring_currency_cache.bin')
+                    print("download")
+                else:
+                    print("pass")
+        # f = drive.CreateFile({'id': file_id})
+        # f.GetContentFile('save/monitoring_currency_cache.bin')
         z = open('save/monitoring_currency_cache.bin', 'rb')
         r = pickle.load(z)
         return r
@@ -51,24 +62,38 @@ def set_monitoring_currency_cache(data):
     z = open('save/monitoring_currency_cache.bin', 'wb')
     pickle.dump(data, z)
     z.close()
-    f = drive.CreateFile()
+
+    file_metadata = {
+        'id': "1f4PN92WgusiWjhS_UxwUkrgcSO9i8ive",
+        'title': "monitoring_currency_cache.bin",
+        'parents': [{
+            'id': folder_id,
+            'kind': 'drive#fileLink',
+        }],
+    }
+    f = drive.CreateFile(file_metadata)
+    # use SetContentFile for attach and upload
     f.SetContentFile('save/monitoring_currency_cache.bin')
-    # Googleドライブにアップロード
-    f.Upload()
+    # always apply param when upload
+    f.Upload(param={'supportsTeamDrives': True})
+    print("uploaded")
 
 
 # 今取引しているコインについての情報
 # 取引してないときはNULL？
 # userは1or2
-def get_position_cache(user):
-    user = str(user)
-    if user != '1' and user != '2':
-        return
+def get_position_cache():
     try:
-        file_id = drive.ListFile({'q': 'title = "position_cache' + str(user) + '.bin"'}).GetList()[0]['id']
-        f = drive.CreateFile({'id': file_id})
-        f.GetContentFile('save/position_cache' + str(user) + '.bin')
-        path = 'save/position_cache' + str(user) + '.bin'
+        query = "'{}' in parents and trashed=false".format(folder_id)
+
+        for file_list in drive.ListFile({'q': query}):
+            for file in file_list:
+                if file['title'] == 'position_cache.bin':
+                    file.GetContentFile('save/position_cache.bin')
+                    print("download")
+                else:
+                    print("pass")
+        path = 'save/position_cache.bin'
         with open(path, 'rb') as web:
             r = pickle.load(web)
             return r
@@ -85,22 +110,29 @@ def get_position_cache(user):
             'profit': 0,
             'mode': 0,
         }
-        set_position_cache(user, data)
+        set_position_cache(data)
         warning("[CacheManager]例外：ファイルがないので初期ファイルを作成します")
         return data
 
 
-def set_position_cache(user, data):
-    user = str(user)
-    if user != '1' and user != '2':
-        return
-    path = 'save/position_cache' + str(user) + '.bin'
+def set_position_cache(data):
+    path = 'save/position_cache.bin'
     with open(path, 'wb') as web:
         pickle.dump(data, web)
-    f = drive.CreateFile()
-    f.SetContentFile('save/position_cache' + str(user) + '.bin')
-    # Googleドライブにアップロード
-    f.Upload()
+
+    file_metadata = {
+        'id': '1QDUlb164YvgfH76Zww8CVYIm4wL__sv9',
+        'title': 'position_cache.bin',
+        'parents': [{
+            'id': folder_id,
+            'kind': 'drive#fileLink',
+        }],
+    }
+    f = drive.CreateFile(file_metadata)
+    # use SetContentFile for attach and upload
+    f.SetContentFile('save/position_cache.bin')
+    # always apply param when upload
+    f.Upload(param={'supportsTeamDrives': True})
 
 
 class CacheManagerClass:
@@ -109,4 +141,23 @@ class CacheManagerClass:
 
 
 if __name__ == "__main__":
-    print(type(get_monitoring_currency_cache()))
+    dict = {
+        'status': False,
+        'dt_now': None,
+        'price': 0,
+        'usecoin': None,
+        'amount': 0,
+        'wasOverbuy': False,
+        'wasOversold': False,
+        'crossoverbuy': False,
+        'crossoversold': False,
+        'buy_coin': 0,
+        'sell_coin': 0,
+        'mode': 0,
+    }
+    data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
+            'BATUSDT': datetime.now() + timedelta(hours=1)
+            }
+    # set_position_cache(dict)
+    # set_monitoring_currency_cache(data)
+    print(get_position_cache())
