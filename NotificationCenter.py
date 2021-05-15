@@ -79,7 +79,7 @@ def debug(msg):
 
 
 def info(*args):
-    user = 3
+    user = 1
     if len(args) > 1:
         user = args[1]
     msg = str(args[0])
@@ -96,7 +96,7 @@ def warning(msg):
 
 
 def error(*args):
-    user = 3
+    user = 2
     if len(args) > 1:
         user = args[1]
     msg = str(args[0])
@@ -107,7 +107,7 @@ def error(*args):
 
 
 def critical(*args):
-    user = 3
+    user = 2
     if len(args) > 1:
         user = args[1]
     msg = str(args[0])
