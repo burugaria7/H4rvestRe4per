@@ -7,7 +7,7 @@ import schedule
 import time
 import threading
 import SheetController
-import CacheManager as Cache
+import CloudCacheManager as Cache
 import CoinSelector
 import DiscordStatus
 from datetime import date, datetime, timedelta
