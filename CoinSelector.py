@@ -3,6 +3,7 @@ import time
 import Calculation
 from datetime import datetime
 from NotificationCenter import debug, info, warning, error, critical
+import traceback
 
 
 class CoinSelectorClass:
@@ -22,7 +23,7 @@ class CoinSelectorClass:
         while True:
             prices = self.binance_instance.get_ticker()
             tmp = [i['symbol'] for i in prices if
-                   'USDT' in i['symbol'] and 'DOWN' not in i['symbol'] and 'UP' not in i['symbol'] and float(
+                   i['symbol'].endswith('USDT') and 'DOWN' not in i['symbol'] and 'UP' not in i['symbol'] and float(
                        i['price']) <= 100 and not i['symbol'].startswith('USD')]
             choice = []
             # up = 0
@@ -33,10 +34,8 @@ class CoinSelectorClass:
                     # debug(str(i) + str(dic))
                     if dic['choice']:
                         choice.append(i)
-                except ConnectionResetError as e:
-                    warning(e)
                 except Exception as e:
-                    critical(e)
+                    debug(str(e))
                 time.sleep(0.5)
 
             if choice:

@@ -145,8 +145,9 @@ class CalculationClass:
         macdline = macd - macdsignal
         tec['macdline'] = macdline[-1]
 
-        if rsi14[-1] <= RSISoldLevel or rsi14[-2] <= RSISoldLevel or rsi14[-3] <= RSISoldLevel or rsi14[
-            -4] <= RSISoldLevel or rsi14[-5] <= RSISoldLevel or rsi14[-6] <= RSISoldLevel or rsi14[-7] <= RSISoldLevel or rsi14[-8] <= RSISoldLevel or rsi14[-9] <= RSISoldLevel:
+        if (rsi14[-1] <= RSISoldLevel or rsi14[-2] <= RSISoldLevel or rsi14[-3] <= RSISoldLevel or
+                rsi14[-4] <= RSISoldLevel or rsi14[-5] <= RSISoldLevel or rsi14[-6] <= RSISoldLevel or
+                rsi14[-7] <= RSISoldLevel or rsi14[-8] <= RSISoldLevel or rsi14[-9] <= RSISoldLevel):
             tec['wasOversold'] = True
 
         if rsi14[-1] >= RSIBuyLevel or rsi14[-2] >= RSIBuyLevel or rsi14[-3] >= RSIBuyLevel or rsi14[
