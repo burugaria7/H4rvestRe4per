@@ -66,10 +66,11 @@ class H4rvestRe4perClass:
             thread_sell = threading.Thread(target=self.sell_bot, args=(1,))
             self.discord_status_instance.set_status("Observing")
             thread_sell.start()
+        else:
+            self.discord_status_instance.set_status("Searching")
 
         debug("[__init__]" + "search_botスレッドを起動します")
         thread_search = threading.Thread(target=self.search_bot)
-        self.discord_status_instance.set_status("Searching")
         thread_search.start()
 
     def search_bot(self):
