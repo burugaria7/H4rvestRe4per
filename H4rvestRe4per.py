@@ -24,11 +24,9 @@ class H4rvestRe4perClass:
         self.account = {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
                         'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
                         }
-        self.binance_instance = BinanceController.BinanceControllerClass('', '', 3)
-        self.binance_instance_1 = BinanceController.BinanceControllerClass(self.account['api_key'],
-                                                                           self.account['api_secret'], 2)
-        self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 3)
-        self.Calculation_instance_1 = Calculation.CalculationClass(self.binance_instance_1, 2)
+        self.binance_instance = BinanceController.BinanceControllerClass(self.account['api_key'],
+                                                                         self.account['api_secret'], 2)
+        self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 2)
         self.scraping = ScrapingManager.ScrapingManagerClass()
         self.sheet = SheetController.SheetControllerClass()
         self.selector = CoinSelector.CoinSelectorClass()
@@ -39,14 +37,14 @@ class H4rvestRe4perClass:
         # 監視するコインペアの上限値
         self.MAX_OBSERVE = 8
         # Falseで初期化することでそのAPIを使わない設定にできるよ☆
-        self.available_api1 = True
+        self.available_api = True
 
         self.discord_status_instance = DiscordStatus.DiscordStatusClass()
 
-        print(self.binance_instance_1.get_USDJPY())
-        print(self.binance_instance_1.get_balance())
+        print(self.binance_instance.get_USDJPY())
+        print(self.binance_instance.get_balance())
         print(self.Calculation_instance.cul_profit(
-            self.binance_instance_1.get_balance()) * self.binance_instance_1.get_USDJPY())
+            self.binance_instance.get_balance()) * self.binance_instance.get_USDJPY())
 
         debug("[__init__]" + "Windowsの時刻を同期します")
         subprocess.run(['sync_date_time.bat'], stdout=subprocess.PIPE)
@@ -59,7 +57,7 @@ class H4rvestRe4perClass:
         # ポジションを持っていたら売却スレッドをたてる
         Dic = Cache.get_position_cache()
         if Dic['status']:
-            self.available_api1 = False
+            self.available_api = False
             # 未決済ポジションがあるため、売却スレッドを建てる
             debug("[__init__]" + "未決済ポジションがあるため、売却スレッドを建てます" + str(1))
             self.discord_status_instance.set_status(Dic['pair'])
@@ -81,6 +79,7 @@ class H4rvestRe4perClass:
                 # self.observe_que内の個数が変わってしまうためにitem()で回避している
                 for i, j in list(self.observe_que.items()):
                     dicc = self.Calculation_instance.cul_tec(i, 3)
+                    # ｊがデッドライン
                     if j < datetime.now() or dicc['detect_descent']:
                         if j < datetime.now():
                             debug("[search_bot]" + str(i) + "を監視から外します(期限切れ)")
@@ -108,13 +107,12 @@ class H4rvestRe4perClass:
                         thread_observer = threading.Thread(target=self.coin_observer, args=(i,))
                         thread_observer.start()
                         # 　監視スレッド起動
-                    time.sleep(0.5)
                 Cache.set_monitoring_currency_cache(self.observe_que)
             time.sleep(5)
 
     def coin_observer(self, pair):
         debug("[coin_observer, pair= " + str(pair) + "]起動！")
-        while self.available_api1 and pair in self.observe_que:
+        while self.available_api and pair in self.observe_que:
             Tec = self.Calculation_instance.cul_tec(pair, 1)
             # debug("[coin_observer]"+str(Tec))
             dict = {
@@ -135,15 +133,15 @@ class H4rvestRe4perClass:
             # if Tec['choice']:
             if Tec['crossover_buy']:
                 debug("[coin_observer]" + "買い処理をします")
-                if self.available_api1:
+                if self.available_api:
                     dict['amount'] = '6666666'
-                    # dict['amount'] = self.binance_instance_2.buy_all(pair)
-                    dict['buy_coin'] = self.binance_instance_1.get_price(pair)
+                    # dict['amount'] = self.binance_instance.buy_all(pair)
+                    dict['buy_coin'] = self.binance_instance.get_price(pair)
                     dict['status'] = True
                     dict['user'] = 2
                     dict['buy_time'] = datetime.now()
                     Cache.set_position_cache(dict)
-                    self.available_api1 = False
+                    self.available_api = False
                     del self.observe_que[pair]
                     info("買いました", 2)
                     info(str(dict), 2)
@@ -156,7 +154,7 @@ class H4rvestRe4perClass:
     def sell_bot(self, user):
         user = int(user)
         debug("[sell_bot, user= " + str(user) + "]起動！")
-        while not self.available_api1:
+        while not self.available_api:
             dict = Cache.get_position_cache()
             sell_algorithm = self.Calculation_instance.sell_algorithm(dict)
             Tec_1min = self.Calculation_instance.cul_tec(dict['pair'], 1)
@@ -177,15 +175,15 @@ class H4rvestRe4perClass:
                     dict['mode'] = 4
                     info("1分足売り時検知（MACD+RSI）", user)
 
-                dict['sell_coin'] = self.binance_instance_1.get_price(dict['pair'])
+                dict['sell_coin'] = self.binance_instance.get_price(dict['pair'])
                 dict['status'] = False
                 dict['sell_time'] = datetime.now()
-                dict['profit'] = self.Calculation_instance.cul_profit(self.binance_instance_1.get_balance())
+                dict['profit'] = self.Calculation_instance.cul_profit(self.binance_instance.get_balance())
                 # self.binance_instance_1.sell_all(dict['pair'])
                 info("売りました", 2)
                 info(str(dict), 2)
                 debug("[sell_bot]" + "売り処理成功！（１）")
-                self.available_api1 = True
+                self.available_api = True
                 Cache.set_position_cache(dict)
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
                 self.discord_status_instance.set_status("Observing")
