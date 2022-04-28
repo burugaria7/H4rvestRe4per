@@ -92,16 +92,7 @@ class H4rvestRe4perClass:
                         tmp[i] = j
             self.observe_que = tmp
             # なんかコイン認識したら = なんか新しく認識したら回る
-            # ここ無駄処理である
-            # if self.selector.get_selected_coin().keys() != self.observe_que.keys():
-            que = []
-            test = []
-            for i in self.observe_que.keys():
-                que.append(i)
-
-            for j in self.selector.get_selected_coin().keys():
-                test.append(j)
-            if test not in que and test != []:
+            if self.selector.get_selected_coin().keys() != self.observe_que.keys():
                 self.coin_buffer = self.selector.get_selected_coin()
                 for i in self.coin_buffer:
                     # 監視してるコインが上限値超えてたら、一旦休憩

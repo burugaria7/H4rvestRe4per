@@ -159,5 +159,5 @@ if __name__ == "__main__":
             'BATUSDT': datetime.now() + timedelta(hours=1)
             }
     # set_position_cache(dict)
-    set_monitoring_currency_cache(data)
-    # print(get_monitoring_currency_cache())
+    # set_monitoring_currency_cache(data)
+    print(get_position_cache())
