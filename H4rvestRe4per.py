@@ -20,6 +20,9 @@ class H4rvestRe4perClass:
     buy = 0.0
     sell = 0.0
 
+    # 　コインを検知する計算に使う足
+    OBSERVE_PERIOD = 15
+
     def __init__(self):
         self.account = {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
                         'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
@@ -50,8 +53,8 @@ class H4rvestRe4perClass:
         subprocess.run(['sync_date_time.bat'], stdout=subprocess.PIPE)
         time.sleep(3)
 
-        debug("[__init__]" + "coin_selectorスレッドを起動します")
-        thread_selector = threading.Thread(target=self.selector.coin_selector)
+        debug("[__init__]" + "coin_selector_MACD_RSI(" + str(self.OBSERVE_PERIOD) + ")スレッドを起動します")
+        thread_selector = threading.Thread(target=self.selector.coin_selector_MACD_RSI, args=(self.OBSERVE_PERIOD,))
         thread_selector.start()
 
         # ポジションを持っていたら売却スレッドをたてる
