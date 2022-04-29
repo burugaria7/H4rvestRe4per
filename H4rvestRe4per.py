@@ -34,7 +34,7 @@ class H4rvestRe4perClass:
         self.sheet = SheetController.SheetControllerClass()
         self.selector = CoinSelector.CoinSelectorClass()
         self.coin_buffer = {}
-        self.observe_que = Cache.get_monitoring_currency_cache()
+        self.observe_que = Cache.get_observing_fire_cache()
         # 一回認識したら最低限監視する期間
         self.OBSERVE_TIME = timedelta(hours=1)
         # 監視するコインペアの上限値
@@ -110,7 +110,7 @@ class H4rvestRe4perClass:
                         thread_observer = threading.Thread(target=self.coin_observer, args=(i,))
                         thread_observer.start()
                         # 　監視スレッド起動
-                Cache.set_monitoring_currency_cache(self.observe_que)
+                Cache.set_observing_fire_cache(self.observe_que)
             time.sleep(5)
 
     def coin_observer(self, pair):

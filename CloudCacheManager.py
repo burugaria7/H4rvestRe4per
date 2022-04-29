@@ -42,29 +42,29 @@ gauth.SaveCredentialsFile("mycreds.txt")
 # Googleドライブの認証処理
 drive = GoogleDrive(gauth)
 
-def set_observing_fire_cache(data):
 
-    for i,j in data.items():
-        pair = i
-        deadline = j
-        doc_ref = db.collection('observing')
-        doc_ref.add({
-            'pair': pair,
-            'deadline': deadline,
-        })
+def set_observing_fire_cache(data):
+    doc_ref = db.collection('observing')
+    docs = doc_ref.stream()
+    for doc in docs:
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        doc_ref.document(doc.id).delete()
+    doc_ref.add(data)
+
 
 def get_observing_fire_cache():
     data = {}
     docs = db.collection('observing').get()
     for doc in docs:
-        # print(doc.to_dict())
         dic = doc.to_dict()
-        #firebasetype_to_datetimetype
-        deadline = datetime.fromtimestamp(dic['deadline'].timestamp())
-        data[dic['pair']] = deadline
-        # print(type(dic['deadline']))
-        # print(type(deadline))
+        for i, j in dic.items():
+            # firebasetype_to_datetimetype
+            deadline = datetime.fromtimestamp(dic[i].timestamp())
+            data[i] = deadline
+            # print(type(dic['deadline']))
+            # print(type(deadline))
     return data
+
 
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
@@ -187,10 +187,10 @@ if __name__ == "__main__":
         'mode': 0,
     }
     data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
-            'BATUSDT': datetime.now() + timedelta(hours=1)
+            'BATUSDT': datetime.now() + timedelta(hours=1),
+            'BTCUSDT': datetime.now() + timedelta(hours=1)
             }
-
-
+    set_observing_fire_cache(data)
     print(get_observing_fire_cache())
 
     # set_position_cache(dict)
