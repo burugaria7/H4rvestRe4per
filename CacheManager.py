@@ -1,6 +1,7 @@
 import pickle
 from datetime import datetime, timedelta
 from NotificationCenter import debug, info, warning, error, critical
+import ast
 
 
 # 監視している通貨リスト
@@ -35,17 +36,17 @@ def get_position_cache(user):
             return r
     except:
         data = {
-                'user': 0,
-                'status': False,
-                'pair': None,
-                'amount': 0,
-                'buy_time': None,
-                'sell_time': None,
-                'buy_coin': 0,
-                'sell_coin': 0,
-                'profit': 0,
-                'mode': 0,
-            }
+            'user': 0,
+            'status': False,
+            'pair': None,
+            'amount': 0,
+            'buy_time': None,
+            'sell_time': None,
+            'buy_coin': 0,
+            'sell_coin': 0,
+            'profit': 0,
+            'mode': 0,
+        }
         set_position_cache(user, data)
         warning("[CacheManager]例外：ファイルがないので初期ファイルを作成します")
         return data
@@ -58,6 +59,13 @@ def set_position_cache(user, data):
     path = 'save/position_cache' + str(user) + '.bin'
     with open(path, 'wb') as web:
         pickle.dump(data, web)
+
+
+def get_binance_api():
+    f = open('binance_api.txt', 'r', encoding='UTF-8')
+    api_txt = f.read()
+    api_key = ast.literal_eval(api_txt)
+    return api_key
 
 
 class CacheManagerClass:
@@ -85,5 +93,4 @@ if __name__ == "__main__":
             }
     # set_position_cache(1, dict)
     # set_monitoring_currency_cache(data)
-    print(get_position_cache(1))
-    print(get_position_cache(2))
+    print(type(get_binance_api()))

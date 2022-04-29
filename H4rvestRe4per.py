@@ -8,6 +8,7 @@ import time
 import threading
 import SheetController
 import CloudCacheManager as Cache
+import CacheManager
 import CoinSelector
 import DiscordStatus
 from datetime import date, datetime, timedelta
@@ -24,9 +25,8 @@ class H4rvestRe4perClass:
     OBSERVE_PERIOD = 15
 
     def __init__(self):
-        self.account = {'api_key': "AzI7xoktKczaf6Ja6XIcVKmfiiIan3zdnrOYvBciTLzdTHzgCpIPqtpKMisdmkjZ",
-                        'api_secret': "JHS2qqgDWWFSBBZNCLWgExEW78lwkCfjBIUW6Z5nT3Yxoubsc4rVNpTicWRIwKq3"
-                        }
+
+        self.account = CacheManager.get_binance_api()
         self.binance_instance = BinanceController.BinanceControllerClass(self.account['api_key'],
                                                                          self.account['api_secret'], 2)
         self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 2)
