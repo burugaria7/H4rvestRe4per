@@ -7,6 +7,13 @@ from pydrive.auth import GoogleAuth
 
 import os
 
+import firebase_admin
+from firebase_admin import credentials
+
+cred = credentials.Certificate("h4rvestre4per-firebase-adminsdk-du65m-806725a0ef.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
 drive_id = "0XXXXXXXXXXXXXVA"  # confirm from url
 folder_id = "1_VpYpXiISNr-fFEJVfGa0UTTwFoXVh1K"  # confirm from url
 
@@ -33,7 +40,6 @@ gauth.SaveCredentialsFile("mycreds.txt")
 
 # Googleドライブの認証処理
 drive = GoogleDrive(gauth)
-
 
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
