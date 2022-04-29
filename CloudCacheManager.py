@@ -9,6 +9,7 @@ import os
 
 import firebase_admin
 from firebase_admin import credentials
+from firebase_admin import firestore
 
 cred = credentials.Certificate("h4rvestre4per-firebase-adminsdk-du65m-806725a0ef.json")
 firebase_admin.initialize_app(cred)
@@ -40,6 +41,30 @@ gauth.SaveCredentialsFile("mycreds.txt")
 
 # Googleドライブの認証処理
 drive = GoogleDrive(gauth)
+
+def set_observing_fire_cache(data):
+
+    for i,j in data.items():
+        pair = i
+        deadline = j
+        doc_ref = db.collection('observing')
+        doc_ref.add({
+            'pair': pair,
+            'deadline': deadline,
+        })
+
+def get_observing_fire_cache():
+    data = {}
+    docs = db.collection('observing').get()
+    for doc in docs:
+        # print(doc.to_dict())
+        dic = doc.to_dict()
+        #firebasetype_to_datetimetype
+        deadline = datetime.fromtimestamp(dic['deadline'].timestamp())
+        data[dic['pair']] = deadline
+        # print(type(dic['deadline']))
+        # print(type(deadline))
+    return data
 
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
@@ -164,6 +189,9 @@ if __name__ == "__main__":
     data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
             'BATUSDT': datetime.now() + timedelta(hours=1)
             }
+
+
+    print(get_observing_fire_cache())
+
     # set_position_cache(dict)
     # set_monitoring_currency_cache(data)
-    print(get_position_cache())
