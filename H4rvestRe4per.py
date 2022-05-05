@@ -58,7 +58,7 @@ class H4rvestRe4perClass:
         thread_selector.start()
 
         # ポジションを持っていたら売却スレッドをたてる
-        Dic = Cache.get_position_cache()
+        Dic = Cache.get_transactions_fire_cache()
         if Dic['status']:
             self.available_api = False
             # 未決済ポジションがあるため、売却スレッドを建てる
@@ -143,7 +143,7 @@ class H4rvestRe4perClass:
                     dict['status'] = True
                     dict['user'] = 2
                     dict['buy_time'] = datetime.now()
-                    Cache.set_position_cache(dict)
+                    Cache.set_transactions_fire_cache(dict)
                     self.available_api = False
                     del self.observe_que[pair]
                     info("買いました", 2)
@@ -158,7 +158,7 @@ class H4rvestRe4perClass:
         user = int(user)
         debug("[sell_bot, user= " + str(user) + "]起動！")
         while not self.available_api:
-            dict = Cache.get_position_cache()
+            dict = Cache.get_transactions_fire_cache()
             sell_algorithm = self.Calculation_instance.sell_algorithm(dict)
             Tec_1min = self.Calculation_instance.cul_tec(dict['pair'], 1)
             Tec_15min = self.Calculation_instance.cul_tec(dict['pair'], 3)
@@ -187,7 +187,7 @@ class H4rvestRe4perClass:
                 info(str(dict), 2)
                 debug("[sell_bot]" + "売り処理成功！（１）")
                 self.available_api = True
-                Cache.set_position_cache(dict)
+                Cache.set_transactions_fire_cache(dict)
                 self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
                 self.discord_status_instance.set_status("Observing")
                 return

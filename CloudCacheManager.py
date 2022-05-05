@@ -66,6 +66,45 @@ def get_observing_fire_cache():
     return data
 
 
+def set_transactions_fire_cache(data):
+    doc_ref = db.collection('transactions')
+    docs = doc_ref.stream()
+    for doc in docs:
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        doc_ref.document(doc.id).delete()
+    doc_ref.add(data)
+
+
+def get_transactions_fire_cache():
+    try:
+        data = {}
+        docs = db.collection('transactions').get()
+        for doc in docs:
+            dic = doc.to_dict()
+            for i, j in dic.items():
+                # firebasetype_to_datetimetype
+                data[i] = j
+                # print(type(dic['deadline']))
+                # print(type(deadline))
+        return data
+    except:
+        data = {
+            'user': 0,
+            'status': False,
+            'pair': None,
+            'amount': 0,
+            'buy_time': None,
+            'sell_time': None,
+            'buy_coin': 0,
+            'sell_coin': 0,
+            'profit': 0,
+            'mode': 0,
+        }
+        set_transactions_fire_cache(data)
+        warning("[CacheManager]例外：ファイルがないので初期ファイルを作成します")
+        return data
+
+
 # 監視している通貨リスト
 def get_monitoring_currency_cache():
     try:
@@ -190,8 +229,8 @@ if __name__ == "__main__":
             'BATUSDT': datetime.now() + timedelta(hours=1),
             'BTCUSDT': datetime.now() + timedelta(hours=1)
             }
-    set_observing_fire_cache(data)
-    print(get_observing_fire_cache())
+    print(get_transactions_fire_cache())
+
 
     # set_position_cache(dict)
     # set_monitoring_currency_cache(data)
