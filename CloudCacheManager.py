@@ -7,6 +7,14 @@ from pydrive.auth import GoogleAuth
 
 import os
 
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
+cred = credentials.Certificate("h4rvestre4per-firebase-adminsdk-du65m-806725a0ef.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
 drive_id = "0XXXXXXXXXXXXXVA"  # confirm from url
 folder_id = "1_VpYpXiISNr-fFEJVfGa0UTTwFoXVh1K"  # confirm from url
 
@@ -33,6 +41,68 @@ gauth.SaveCredentialsFile("mycreds.txt")
 
 # Googleドライブの認証処理
 drive = GoogleDrive(gauth)
+
+
+def set_observing_fire_cache(data):
+    doc_ref = db.collection('observing')
+    docs = doc_ref.stream()
+    for doc in docs:
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        doc_ref.document(doc.id).delete()
+    doc_ref.add(data)
+
+
+def get_observing_fire_cache():
+    data = {}
+    docs = db.collection('observing').get()
+    for doc in docs:
+        dic = doc.to_dict()
+        for i, j in dic.items():
+            # firebasetype_to_datetimetype
+            deadline = datetime.fromtimestamp(dic[i].timestamp())
+            data[i] = deadline
+            # print(type(dic['deadline']))
+            # print(type(deadline))
+    return data
+
+
+def set_transactions_fire_cache(data):
+    doc_ref = db.collection('transactions')
+    docs = doc_ref.stream()
+    for doc in docs:
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        doc_ref.document(doc.id).delete()
+    doc_ref.add(data)
+
+
+def get_transactions_fire_cache():
+    try:
+        data = {}
+        docs = db.collection('transactions').get()
+        for doc in docs:
+            dic = doc.to_dict()
+            for i, j in dic.items():
+                # firebasetype_to_datetimetype
+                data[i] = j
+                # print(type(dic['deadline']))
+                # print(type(deadline))
+        return data
+    except:
+        data = {
+            'user': 0,
+            'status': False,
+            'pair': None,
+            'amount': 0,
+            'buy_time': None,
+            'sell_time': None,
+            'buy_coin': 0,
+            'sell_coin': 0,
+            'profit': 0,
+            'mode': 0,
+        }
+        set_transactions_fire_cache(data)
+        warning("[CacheManager]例外：ファイルがないので初期ファイルを作成します")
+        return data
 
 
 # 監視している通貨リスト
@@ -156,8 +226,11 @@ if __name__ == "__main__":
         'mode': 0,
     }
     data = {'XEMUSDT': datetime.now() + timedelta(hours=1),
-            'BATUSDT': datetime.now() + timedelta(hours=1)
+            'BATUSDT': datetime.now() + timedelta(hours=1),
+            'BTCUSDT': datetime.now() + timedelta(hours=1)
             }
+    print(get_transactions_fire_cache())
+
+
     # set_position_cache(dict)
     # set_monitoring_currency_cache(data)
-    print(get_position_cache())
