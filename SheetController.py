@@ -23,10 +23,12 @@ class SheetControllerClass:
         self.log2_sp = sp.worksheet('決済履歴2')
         self.pair_sp = sp.worksheet('自動通貨選択')
         self.test_sp = sp.worksheet('テスト用')
+        self.demo_sp = sp.worksheet('デモ')
 
     # この関数もキャッシュ全部ファイル化することで使わんくしたい
     def get_buy_date(self, user):
         buy_date = []
+        cur_status = []
         # buy_date_insert
         if user == 1:
             cur_status = self.log1_sp.row_values(4)
@@ -45,3 +47,5 @@ class SheetControllerClass:
             self.log1_sp.insert_row(data, index=8, value_input_option='RAW')
         elif user == 2:
             self.log2_sp.insert_row(data, index=8, value_input_option='RAW')
+        elif user == 0:
+            self.demo_sp.insert_row(data, index=8, value_input_option='RAW')

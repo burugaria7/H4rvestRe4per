@@ -89,6 +89,7 @@ class BinanceControllerClass:
                 print(order["symbol"])
                 print(order["side"])
                 print("量：" + order["origQty"])
+                return
             except ConnectionResetError as e:
                 warning(str(e))
             except Exception as e:
@@ -103,6 +104,7 @@ class BinanceControllerClass:
                 print(order["symbol"])
                 print(order["side"])
                 print("量：" + order["origQty"])
+                return
             except ConnectionResetError as e:
                 warning(str(e))
             except Exception as e:
@@ -113,20 +115,39 @@ class BinanceControllerClass:
     # 取得配列の内訳
     # [OpenTime,Open,High,Low,Close,Volume,CloseTime,QuoteAssetVolume,NumberOfTrades,TakerBuyBaseAssetVolume,TakerBuyQuoteAssetVolume,Ignore]
     def coin_tec_1min(self, coin):
-        klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_1MINUTE)
-        openP = [i[1] for i in klines]
-        openT = [self.deta_cul(i[0]) for i in klines]
-        return openP, openT
+        while True:
+            try:
+                klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_1MINUTE)
+                openP = [i[1] for i in klines]
+                openT = [self.deta_cul(i[0]) for i in klines]
+                return openP, openT
+            except Exception as e:
+                warning(str(e))
+                time.sleep(1)
+                pass
 
     def coin_tec_15min(self, coin):
-        klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_15MINUTE)
-        openP = [i[1] for i in klines]
-        openT = [self.deta_cul(i[0]) for i in klines]
-        return openP, openT
+        while True:
+            try:
+                klines = self.client.get_klines(symbol=coin, interval=Client.KLINE_INTERVAL_15MINUTE)
+                openP = [i[1] for i in klines]
+                openT = [self.deta_cul(i[0]) for i in klines]
+                return openP, openT
+            except Exception as e:
+                warning(str(e))
+                time.sleep(1)
+                pass
 
     def coin_raw_1min(self, coin):
-        klines = self.client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "10 day ago UTC")
-        return klines
+        while True:
+            try:
+                klines = self.client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "10 day ago UTC")
+                return klines
+            except Exception as e:
+                warning(str(e))
+                time.sleep(1)
+                pass
+
 
     def deta_cul(self, servertime):  # サーバータイムを日付に変換する
         time = float(servertime) / 1000

@@ -23,7 +23,7 @@ class CalculationClass:
         end = dic['sell_time'].strftime("%Y/%m/%d %H:%M")
         max_min = {
             'coin': dic['pair'],
-            'price': dic['sell_coin'],
+            'price': dic['buy_coin'],
             'start': datetime.strptime(start, '%Y/%m/%d %H:%M'),
             'end': datetime.strptime(end, '%Y/%m/%d %H:%M')
         }
@@ -42,10 +42,18 @@ class CalculationClass:
         info = []
         maxA = max(MAX1)
         minA = min(MIN1)
-        print("最大：", maxA, ",", (float(maxA) / float(dic['price']) - 1), "%,", Time[MAX1.index(maxA)])
-        print("最小：", minA, ",", (1 - float(dic['price']) / float(minA)), "%,", Time[MIN1.index(minA)])
+        if dic['price'] <= minA:
+            min_percent = (float(minA) / float(dic['price']) - 1)
+        else:
+            min_percent = (1 - float(dic['price']) / float(minA))
+
+        if dic['price'] <= maxA:
+            max_percent = (float(maxA) / float(dic['price']) - 1)
+        else:
+            max_percent = (1 - float(dic['price']) / float(maxA))
+
         info.extend(
-            [maxA, minA, (float(maxA) / float(dic['price']) - 1), (1 - float(dic['price']) / float(minA)),
+            [maxA, minA, max_percent, min_percent,
              Time[MAX1.index(maxA)],
              Time[MIN1.index(minA)]])
         return info
@@ -180,19 +188,33 @@ class CalculationClass:
             except Exception as e:
                 debug(str(e))
 
-    def prepare_log_data_set(self, data):
+    def prepare_log_data_set(self, data, user):
         raw_data = []
 
-        # date_insert
-        buy_date = str(data['buy_time'])
-        buy_date_list = buy_date.split(' ')
+        if user == 0:
+            # date_insert
+            buy_date = str(data['buy_time'])
+            buy_date_list = buy_date.split(' ')
 
-        sell_date = str(data['sell_time'])
-        sell_date_list = sell_date.split(' ')
+            sell_date = str(data['sell_time'])
+            sell_date_list = sell_date.split(' ')
 
-        raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
-        raw_data.extend(
-            [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'] * self.binance_instance.get_USDJPY(), data['mode']])
+            raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
+            raw_data.extend(
+                [data['pair'], data['buy_coin'], data['sell_coin'], data['buy_mode'], data['mode']])
+
+        else:
+            # date_insert
+            buy_date = str(data['buy_time'])
+            buy_date_list = buy_date.split(' ')
+
+            sell_date = str(data['sell_time'])
+            sell_date_list = sell_date.split(' ')
+
+            raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
+            raw_data.extend(
+                [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'],
+                 data['profit'] * self.binance_instance.get_USDJPY(), data['mode']])
 
         max_and_min = self.do_maxmin(data)
         print(max_and_min)
