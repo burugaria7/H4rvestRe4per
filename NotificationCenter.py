@@ -50,7 +50,7 @@ def notify_to_line(msg, level, account_no):
     level = "[" + level + "]"
     msg = level + "\n" + msg
     #デモの時(0)もアカウント１に送る
-    if account_no == 0 & account_no == 1:
+    if account_no == 0 | account_no == 1:
         line_account_1.send_msg(msg)
     if account_no == 2:
         line_account_2.send_msg(msg)
@@ -63,7 +63,7 @@ def notify_to_discord(msg, level, account_no):
     level = "[" + level + "]"
     msg = level + "\n" + msg
     #デモの時(0)もアカウント１に送る
-    if account_no == 0 & account_no == 1:
+    if account_no == 0 | account_no == 1:
         discord_account_1.send_msg(msg)
     if account_no == 2:
         discord_account_2.send_msg(msg)
