@@ -180,19 +180,33 @@ class CalculationClass:
             except Exception as e:
                 debug(str(e))
 
-    def prepare_log_data_set(self, data):
+    def prepare_log_data_set(self, data, user):
         raw_data = []
 
-        # date_insert
-        buy_date = str(data['buy_time'])
-        buy_date_list = buy_date.split(' ')
+        if user == 0:
+            # date_insert
+            buy_date = str(data['buy_time'])
+            buy_date_list = buy_date.split(' ')
 
-        sell_date = str(data['sell_time'])
-        sell_date_list = sell_date.split(' ')
+            sell_date = str(data['sell_time'])
+            sell_date_list = sell_date.split(' ')
 
-        raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
-        raw_data.extend(
-            [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'], data['profit'] * self.binance_instance.get_USDJPY(), data['mode']])
+            raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
+            raw_data.extend(
+                [data['pair'], data['buy_coin'], data['sell_coin'], data['buy_mode'], data['mode']])
+
+        else:
+            # date_insert
+            buy_date = str(data['buy_time'])
+            buy_date_list = buy_date.split(' ')
+
+            sell_date = str(data['sell_time'])
+            sell_date_list = sell_date.split(' ')
+
+            raw_data.extend([buy_date_list[0], buy_date_list[1], sell_date_list[0], sell_date_list[1]])
+            raw_data.extend(
+                [data['pair'], data['buy_coin'], data['sell_coin'], data['amount'],
+                 data['profit'] * self.binance_instance.get_USDJPY(), data['mode']])
 
         max_and_min = self.do_maxmin(data)
         print(max_and_min)

@@ -18,6 +18,9 @@ from NotificationCenter import debug, info, warning, error, critical
 class H4rvestRe4perClass:
     position = False
 
+    # デモモード設定
+    demo = True
+
     buy = 0.0
     sell = 0.0
 
@@ -27,9 +30,17 @@ class H4rvestRe4perClass:
     def __init__(self):
 
         self.account = CacheManager.get_binance_api()
-        self.binance_instance = BinanceController.BinanceControllerClass(self.account['api_key'],
-                                                                         self.account['api_secret'], 2)
-        self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, 2)
+
+        # ユーザ設定（デモかどうか）
+        if self.demo:
+            user = 0
+            self.binance_instance = BinanceController.BinanceControllerClass('', '', user)
+            print('デモモードで実行')
+        else:
+            user = 2
+            self.binance_instance = BinanceController.BinanceControllerClass(self.account['api_key'],
+                                                                             self.account['api_secret'], user)
+        self.Calculation_instance = Calculation.CalculationClass(self.binance_instance, user)
         self.scraping = ScrapingManager.ScrapingManagerClass()
         self.sheet = SheetController.SheetControllerClass()
         self.selector = CoinSelector.CoinSelectorClass()
@@ -44,10 +55,10 @@ class H4rvestRe4perClass:
 
         self.discord_status_instance = DiscordStatus.DiscordStatusClass()
 
-        print(self.binance_instance.get_USDJPY())
-        print(self.binance_instance.get_balance())
-        print(self.Calculation_instance.cul_profit(
-            self.binance_instance.get_balance()) * self.binance_instance.get_USDJPY())
+        # print(self.binance_instance.get_USDJPY())
+        # print(self.binance_instance.get_balance())
+        # print(self.Calculation_instance.cul_profit(
+        #     self.binance_instance.get_balance()) * self.binance_instance.get_USDJPY())
 
         debug("[__init__]" + "Windowsの時刻を同期します")
         subprocess.run(['sync_date_time.bat'], stdout=subprocess.PIPE)
@@ -64,17 +75,17 @@ class H4rvestRe4perClass:
             # 未決済ポジションがあるため、売却スレッドを建てる
             debug("[__init__]" + "未決済ポジションがあるため、売却スレッドを建てます" + str(1))
             self.discord_status_instance.set_status(Dic['pair'])
-            thread_sell = threading.Thread(target=self.sell_bot, args=(1,))
+            thread_sell = threading.Thread(target=self.sell_bot, args=(user,))
             self.discord_status_instance.set_status("Observing")
             thread_sell.start()
         else:
             self.discord_status_instance.set_status("Searching")
 
         debug("[__init__]" + "search_botスレッドを起動します")
-        thread_search = threading.Thread(target=self.search_bot)
+        thread_search = threading.Thread(target=self.search_bot, args=(user,))
         thread_search.start()
 
-    def search_bot(self):
+    def search_bot(self, user):
         debug("[search_bot]起動！")
         while True:
             tmp = {}
@@ -107,13 +118,13 @@ class H4rvestRe4perClass:
                         debug("[search_bot]" + str(i) + "を監視キューに追加しスレッドを起動")
                         debug(str(self.observe_que))
                         self.observe_que[i] = datetime.now() + self.OBSERVE_TIME
-                        thread_observer = threading.Thread(target=self.coin_observer, args=(i,))
+                        thread_observer = threading.Thread(target=self.coin_observer, args=(i, user,))
                         thread_observer.start()
                         # 　監視スレッド起動
                 Cache.set_observing_fire_cache(self.observe_que)
             time.sleep(5)
 
-    def coin_observer(self, pair):
+    def coin_observer(self, pair, user):
         debug("[coin_observer, pair= " + str(pair) + "]起動！")
         while self.available_api and pair in self.observe_que:
             Tec = self.Calculation_instance.cul_tec(pair, 1)
@@ -129,28 +140,27 @@ class H4rvestRe4perClass:
                 'sell_coin': 0,
                 'profit': 0,
                 'mode': 0,
+                'buy_mode': 0,
             }
-            # if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1,
-            #                                                               pair) and self.scraping.cul_trend_from_tradingview(
-            #     2, pair):
-            # if Tec['choice']:
-            if Tec['crossover_buy']:
+            # if Tec['choice'] and self.scraping.cul_trend_from_tradingview(1, pair) and
+            # self.scraping.cul_trend_from_tradingview( 2, pair): if Tec['choice']:
+            if Tec['choice']:
                 debug("[coin_observer]" + "買い処理をします")
                 if self.available_api:
-                    dict['amount'] = '6666666'
-                    # dict['amount'] = self.binance_instance.buy_all(pair)
+                    if not self.demo:
+                        dict['amount'] = self.binance_instance.buy_all(pair)
                     dict['buy_coin'] = self.binance_instance.get_price(pair)
                     dict['status'] = True
-                    dict['user'] = 2
+                    dict['user'] = user
                     dict['buy_time'] = datetime.now()
                     Cache.set_transactions_fire_cache(dict)
                     self.available_api = False
                     del self.observe_que[pair]
-                    info("買いました", 2)
-                    info(str(dict), 2)
+                    info("買いました", user)
+                    info(str(dict), user)
                     debug("[coin_observer]" + "買い処理成功！（２）")
                     self.discord_status_instance.set_status(pair)
-                    self.sell_bot(2)
+                    self.sell_bot(user)
                 return
             time.sleep(10)
 
@@ -181,14 +191,15 @@ class H4rvestRe4perClass:
                 dict['sell_coin'] = self.binance_instance.get_price(dict['pair'])
                 dict['status'] = False
                 dict['sell_time'] = datetime.now()
-                dict['profit'] = self.Calculation_instance.cul_profit(self.binance_instance.get_balance())
-                # self.binance_instance_1.sell_all(dict['pair'])
-                info("売りました", 2)
-                info(str(dict), 2)
+                if not self.demo:
+                    dict['profit'] = self.Calculation_instance.cul_profit(self.binance_instance.get_balance())
+                    self.binance_instance.sell_all(dict['pair'])
+                info("売りました", user)
+                info(str(dict), user)
                 debug("[sell_bot]" + "売り処理成功！（１）")
                 self.available_api = True
                 Cache.set_transactions_fire_cache(dict)
-                self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict))
+                self.sheet.post_log(user, self.Calculation_instance.prepare_log_data_set(dict, user))
                 self.discord_status_instance.set_status("Observing")
                 return
             time.sleep(5)
