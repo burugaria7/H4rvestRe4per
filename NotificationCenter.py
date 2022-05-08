@@ -49,7 +49,8 @@ logger.addHandler(log_file)
 def notify_to_line(msg, level, account_no):
     level = "[" + level + "]"
     msg = level + "\n" + msg
-    if account_no == 1:
+    #デモの時(0)もアカウント１に送る
+    if account_no == [0,1]:
         line_account_1.send_msg(msg)
     if account_no == 2:
         line_account_2.send_msg(msg)
@@ -61,7 +62,8 @@ def notify_to_line(msg, level, account_no):
 def notify_to_discord(msg, level, account_no):
     level = "[" + level + "]"
     msg = level + "\n" + msg
-    if account_no == 1:
+    #デモの時(0)もアカウント１に送る
+    if account_no == [0,1]:
         discord_account_1.send_msg(msg)
     if account_no == 2:
         discord_account_2.send_msg(msg)
